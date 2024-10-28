@@ -25,7 +25,7 @@ class Empleado(EmpleadoBase):
     cod_persona: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #-----------------------------------------------------------
 class NombreTipoEmpleadoBase(BaseModel):
@@ -39,7 +39,7 @@ class NombreTipoEmpleado(NombreTipoEmpleadoBase):
     cod_tipo_empleado: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #------------------------------------------------------------
 class AreasBase(BaseModel):
@@ -53,4 +53,4 @@ class Areas(AreasBase):
     cod_area: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

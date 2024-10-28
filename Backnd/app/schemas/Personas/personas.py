@@ -33,4 +33,4 @@ class TipoPersona(TipoPersonaBase):
     cod_tipo_persona: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
