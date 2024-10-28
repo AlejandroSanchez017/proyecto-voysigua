@@ -33,8 +33,10 @@ def modificar_persona(cod_persona: int, persona: PersonaUpdate, db: Session = De
 @router.delete("/personas/{cod_persona}")
 def borrar_persona(cod_persona: int, db: Session = Depends(get_db)):
     try:
-        eliminar_persona(db, cod_persona)
-        return {"message": "Persona eliminada exitosamente"}
+        db_persona=eliminar_persona(db, cod_persona)
+        if db_persona is None:
+            raise HTTPException(status_code=404, detail="Empleado no encontrado")
+        return {"message": "Empleado eliminado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -73,3 +75,5 @@ def borrar_tipo_persona(cod_tipo_persona: int, db: Session = Depends(get_db)):
         return {"message": "Tipo Persona eliminada exitosamente"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+

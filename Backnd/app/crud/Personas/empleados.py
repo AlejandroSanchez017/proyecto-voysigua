@@ -52,11 +52,12 @@ def despedir_empleado(db: Session, cod_empleado: int, fecha_salida: str, motivo_
 
 # Eliminar empleado
 def eliminar_empleado(db: Session, cod_empleado: int):
-    query = text("""
-        CALL eliminar_empleado(:cod_empleado)
-    """)
-    db.execute(query, {"cod_empleado": cod_empleado})
-    db.commit()
+    db_empleado = db.query(Empleado).filter(Empleado.cod_empleado == cod_empleado).first()
+    if db_empleado:
+        db.delete(db_empleado)
+        db.commit()
+        return db_empleado
+    return None
 
 # Obtener empleado por id
 def obtener_empleado_por_id(db: Session, cod_empleado: int):

@@ -41,9 +41,12 @@ def actualizar_persona(db: Session, cod_persona: int, persona: PersonaUpdate):
 
 # Eliminar persona
 def eliminar_persona(db: Session, cod_persona: int):
-    query = text("CALL eliminar_persona(:cod_persona)")
-    db.execute(query, {"cod_persona": cod_persona})
-    db.commit()
+    db_persona = db.query(Persona).filter(Persona.cod_persona == cod_persona).first()
+    if db_persona:
+        db.delete(db_persona)
+        db.commit()
+        return db_persona
+    return None
 
 # Obtener persona por ID
 def obtener_persona_por_id(db: Session, persona_id: int):

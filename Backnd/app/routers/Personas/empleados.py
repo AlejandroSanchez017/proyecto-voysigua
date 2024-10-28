@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area, insertar_tipo_contrato, eliminar_tipo_contrato 
-from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, Empleado, NombreTipoEmpleadoCreate, NombreTipoEmpleado, Areas, AreasCreate, TipoContrato, TipoContratoCreate
+from ...schemas.Personas.empleados import EmpleadoCreate, Empleado, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate
 from ...database import get_db
 
 
@@ -32,9 +32,11 @@ def despedir_empleado(cod_empleado: int, fecha_salida: str, motivo_salida: str, 
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/empleados/{cod_empleado}")
-def eliminar_empleado(cod_empleado: int, db: Session = Depends(get_db)):
+def borrar_empleado(cod_empleado: int, db: Session = Depends(get_db)):
     try:
-        eliminar_empleado(db, cod_empleado)
+        db_empleado=eliminar_empleado(db, cod_empleado)
+        if db_empleado is None:
+            raise HTTPException(status_code=404, detail="Empleado no encontrado")
         return {"message": "Empleado eliminado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
