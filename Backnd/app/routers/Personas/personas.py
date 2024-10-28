@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ...crud.Personas.personas import insertar_persona, actualizar_persona, eliminar_persona, obtener_persona_por_id, obtener_todas_las_personas
-from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate, Persona
+from ...crud.Personas.personas import insertar_persona, actualizar_persona, eliminar_persona, obtener_persona_por_id, obtener_todas_las_personas, insertar_tipo_persona, eliminar_tipo_persona
+from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate, Persona, TipoPersonaCreate, TipoPersona
 from ...database import get_db
 
 router = APIRouter()
@@ -16,9 +16,10 @@ def crear_persona(persona: PersonaCreate, db: Session = Depends(get_db)):
     try:
         insertar_persona(db, persona)
         return {"message": "Persona insertada exitosamente"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
+    except Exception as e: 
+        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
+        raise HTTPException(status_code=400, detail=error_message)
+    
 # Endpoint para actualizar una persona existente
 @router.put("/personas/{cod_persona}")
 def modificar_persona(cod_persona: int, persona: PersonaUpdate, db: Session = Depends(get_db)):
@@ -50,3 +51,25 @@ def leer_persona(persona_id: int, db: Session = Depends(get_db)):
 def leer_todas_las_personas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     personas = obtener_todas_las_personas(db, skip=skip, limit=limit)
     return personas
+
+# Ruta para insertar un nuevo tipo_persona
+@router.post("/tipo_persona/")
+def crear_tipo_persona(tipo_persona: TipoPersonaCreate, db: Session = Depends(get_db)):
+    try:
+        insertar_tipo_persona(db, tipo_persona)
+        return {"message": "Tipo Persona insertada exitosamente"}
+    except Exception as e: 
+        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
+        raise HTTPException(status_code=400, detail=error_message)  
+
+
+# Ruta para eliminar un tipo_persona por ID
+@router.delete("/tipo_persona/{cod_tipo_persona}")
+def borrar_tipo_persona(cod_tipo_persona: int, db: Session = Depends(get_db)):
+    try:
+        db_tipo_persona = eliminar_tipo_persona(db, cod_tipo_persona)
+        if db_tipo_persona is None:
+            raise HTTPException(status_code=404, detail="Tipo Persona no encontrado")
+        return {"message": "Tipo Persona eliminada exitosamente"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

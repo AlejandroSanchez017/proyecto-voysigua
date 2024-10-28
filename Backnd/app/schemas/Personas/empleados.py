@@ -26,3 +26,31 @@ class Empleado(EmpleadoBase):
 
     class Config:
         orm_mode = True
+
+#-----------------------------------------------------------
+class NombreTipoEmpleadoBase(BaseModel):
+    nombre_tipo_empleado: str
+
+#Esquema para crear Tipo Empleado
+class NombreTipoEmpleadoCreate(NombreTipoEmpleadoBase):
+    pass
+
+class NombreTipoEmpleado(NombreTipoEmpleadoBase):
+    cod_tipo_empleado: int
+
+    class Config:
+        orm_mode = True
+
+#------------------------------------------------------------
+class AreasBase(BaseModel):
+    nombre_area: str
+
+#Esquema para crea area
+class AreasCreate(AreasBase):
+    pass 
+
+class Areas(AreasBase):
+    cod_area: int
+
+    class Config:
+        orm_mode = True

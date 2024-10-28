@@ -21,3 +21,16 @@ class Persona(PersonaBase):
 
     class Config:
         from_attributes = True
+
+
+class TipoPersonaBase(BaseModel):
+    tipo_persona: str
+
+class TipoPersonaCreate(TipoPersonaBase):
+    pass
+
+class TipoPersona(TipoPersonaBase):
+    cod_tipo_persona: int
+
+    class Config:
+        orm_mode = True

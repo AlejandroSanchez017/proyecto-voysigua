@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, Empleado
-from ...models.Personas.empleados import Empleado
+from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, AreasCreate
+from ...models.Personas.empleados import Empleado, NombreTipoEmpleado, Areas
 
 # Insertar empleado llamando a procedimiento almacenado
 def insertar_empleado(db: Session, empleado: EmpleadoCreate):
@@ -65,3 +65,37 @@ def obtener_empleado_por_id(db: Session, cod_empleado: int):
 # Obtener todos los empleados
 def obtener_todos_los_empleados(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Empleado).offset(skip).limit(limit).all()
+
+# Insertar TipoEmpleado
+def insertar_tipo_empleado(db: Session, nombre_tipo_empleado: NombreTipoEmpleadoCreate):
+    db_nombre_tipo_empleado = NombreTipoEmpleado(nombre_tipo_empleado=nombre_tipo_empleado.nombre_tipo_empleado)
+    db.add(db_nombre_tipo_empleado)
+    db.commit()
+    db.refresh(db_nombre_tipo_empleado)  # Actualiza el objeto con los datos más recientes de la DB
+    return db_nombre_tipo_empleado
+
+# Eliminar TipoEmpleado
+def eliminar_tipo_empleado(db: Session, cod_tipo_empleado: int):
+    db_nombre_tipo_empleado = db.query(NombreTipoEmpleado).filter(NombreTipoEmpleado.cod_tipo_empleado == cod_tipo_empleado).first()
+    if db_nombre_tipo_empleado:
+        db.delete(db_nombre_tipo_empleado)
+        db.commit()
+        return db_nombre_tipo_empleado
+    return None
+
+#Insertar Area
+def insertar_area(db: Session, nombre_area: AreasCreate):
+    db_areas = Areas(nombre_area=nombre_area.nombre_area)
+    db.add(db_areas)
+    db.commit()
+    db.refresh(db_areas)  # Actualiza el objeto con los datos más recientes de la DB
+    return db_areas
+
+# Eliminar TipoArea
+def eliminar_area(db: Session, cod_area: int):
+    db_areas = db.query(Areas).filter(Areas.cod_area == cod_area).first()
+    if db_areas:
+        db.delete(db_areas)
+        db.commit()
+        return db_areas
+    return None

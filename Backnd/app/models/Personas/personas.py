@@ -14,7 +14,7 @@ class Persona(Base):
     dni = Column(String(20), nullable=False, unique=True)
     primer_nombre = Column(String(50), nullable=False)
     apellido = Column(String(50), nullable=True)
-    fecha_nacimiento = Column(CHAR(10), nullable=False)
+    fecha_nacimiento = Column(Date, nullable=False)
     sexo = Column(CHAR(1), nullable=False)
     correo = Column(String(100), nullable=False, unique=True)
     estado = Column(CHAR(1), nullable=False)

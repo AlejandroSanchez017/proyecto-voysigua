@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate
-from ...models.Personas.personas import Persona
+from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate, TipoPersonaCreate
+from ...models.Personas.personas import Persona, TipoPersona
 
 # Insertar persona
 def insertar_persona(db: Session, persona: PersonaCreate):
@@ -52,3 +52,20 @@ def obtener_persona_por_id(db: Session, persona_id: int):
 # Obtener todas las personas
 def obtener_todas_las_personas(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Persona).offset(skip).limit(limit).all()
+
+# Insertar TipoPersona
+def insertar_tipo_persona(db: Session, tipo_persona: TipoPersonaCreate):
+    db_tipo_persona = TipoPersona(tipo_persona=tipo_persona.tipo_persona)
+    db.add(db_tipo_persona)
+    db.commit()
+    db.refresh(db_tipo_persona)  # Actualiza el objeto con los datos más recientes de la DB
+    return db_tipo_persona
+
+# Eliminar TipoPersona
+def eliminar_tipo_persona(db: Session, cod_tipo_persona: int):
+    db_tipo_persona = db.query(TipoPersona).filter(TipoPersona.cod_tipo_persona == cod_tipo_persona).first()
+    if db_tipo_persona:
+        db.delete(db_tipo_persona)
+        db.commit()
+        return db_tipo_persona
+    return None
