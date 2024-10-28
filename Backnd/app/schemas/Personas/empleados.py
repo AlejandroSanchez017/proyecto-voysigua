@@ -16,7 +16,7 @@ class EmpleadoBase(BaseModel):
 class EmpleadoCreate(EmpleadoBase):
     pass
 
-# Esquema para actualizar empleado
+# Esquema para despedir empleado
 class EmpleadoUpdate(EmpleadoBase):
     fecha_salida: Optional[date]
     motivo_salida: Optional[str]
