@@ -12,6 +12,12 @@ class NombreTipoEmpleado(Base):
     cod_tipo_empleado = Column(Integer, primary_key=True, index=True)
     nombre_tipo_empleado = Column(String(50), nullable=False, unique=True)
 
+class TipoContrato(Base):
+    __tablename__ = 'tbl_tipo_contrato'
+    cod_tipo_contrato= Column(Integer, primary_key=True, index=True)
+    tipo_contrato = Column(String(50), nullable=False, unique=True)
+
+
 class Empleado(Base):
     __tablename__ = "tbl_empleado"
 
@@ -29,7 +35,12 @@ class Empleado(Base):
  # Relación con TipoEmpleado
     nombre_tipo_empleado = relationship("NombreTipoEmpleado", back_populates="empleado")
 
+ # Relación con areas
     nombre_area = relationship("Areas", back_populates="empleado")
+
+ # Relación con TipoContrato
+    tipo_contrato= relationship("TipoContrato", back_populates="empleado")
+
 
 
 # Relación inversa en TipoEmpleado
@@ -38,3 +49,6 @@ NombreTipoEmpleado.empleado = relationship("Empleado", back_populates="nombre_ti
 
 # Relación inversa en areas
 Areas.empleado = relationship("Empleado", back_populates="nombre_area")
+
+# Relación inversa en TipoContrato
+TipoContrato.empleado = relationship("Empleado", back_populates="tipo_contrato")

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, AreasCreate
-from ...models.Personas.empleados import Empleado, NombreTipoEmpleado, Areas
+from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate
+from ...models.Personas.empleados import Empleado, NombreTipoEmpleado, Areas, TipoContrato
 
 # Insertar empleado llamando a procedimiento almacenado
 def insertar_empleado(db: Session, empleado: EmpleadoCreate):
@@ -98,4 +98,21 @@ def eliminar_area(db: Session, cod_area: int):
         db.delete(db_areas)
         db.commit()
         return db_areas
+    return None
+
+# Insertar TipoContrato
+def insertar_tipo_contrato(db: Session, tipo_contrato: TipoContratoCreate):
+    db_tipo_contrato = TipoContrato(tipo_contrato=tipo_contrato.tipo_contrato)
+    db.add(db_tipo_contrato)
+    db.commit()
+    db.refresh(db_tipo_contrato)  # Actualiza el objeto con los datos más recientes de la DB
+    return db_tipo_contrato
+
+# Eliminar TipoContrato
+def eliminar_tipo_contrato(db: Session, cod_tipo_contrato: int):
+    db_tipo_contrato = db.query(TipoContrato).filter(TipoContrato.cod_tipo_contrato == cod_tipo_contrato).first()
+    if db_tipo_contrato:
+        db.delete(db_tipo_contrato)
+        db.commit()
+        return db_tipo_contrato
     return None

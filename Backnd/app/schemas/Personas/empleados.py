@@ -54,3 +54,16 @@ class Areas(AreasBase):
 
     class Config:
         from_attributes = True
+#------------------------------------------------------------
+class TipoContratoBase(BaseModel):
+    tipo_contrato: str
+
+#Esquema para crear Tipo Contrato
+class TipoContratoCreate(TipoContratoBase):
+    pass
+
+class TipoContrato(TipoContratoBase):
+    cod_tipo_contrato: int
+
+    class Config:
+        from_attributes = True

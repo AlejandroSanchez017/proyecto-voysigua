@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area 
-from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, Empleado, NombreTipoEmpleadoCreate, NombreTipoEmpleado, Areas, AreasCreate
+from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area, insertar_tipo_contrato, eliminar_tipo_contrato 
+from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, Empleado, NombreTipoEmpleadoCreate, NombreTipoEmpleado, Areas, AreasCreate, TipoContrato, TipoContratoCreate
 from ...database import get_db
 
 
@@ -90,4 +90,25 @@ def borrar_area(cod_area: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+
+#Ruta Para Insertar Tipo Contrato
+@router.post("/tipo_contrato/")
+def crear_tipo_contrato(tipo_contrato: TipoContratoCreate, db: Session = Depends(get_db)):
+     try:
+        insertar_tipo_contrato(db, tipo_contrato)
+        return {"message": "Tipo Contrato insertado correctamente"}
+     except Exception as e:
+        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
+        raise HTTPException(status_code=400, detail=error_message)
+    
+# Ruta para eliminar un tipo contrato por ID
+@router.delete("/tipo_contrato/{cod_tipo_contrato}")
+def borrar_tipo_contrato(cod_tipo_contrato: int, db: Session = Depends(get_db)):
+    try:
+        db_tipo_contrato = eliminar_tipo_contrato(db, cod_tipo_contrato)
+        if db_tipo_contrato is None:
+            raise HTTPException(status_code=404, detail="Tipo Contrato no encontrado")
+        return {"message": "Tipo Contrato eliminado exitosamente"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
