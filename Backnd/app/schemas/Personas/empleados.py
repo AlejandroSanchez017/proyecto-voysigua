@@ -12,17 +12,34 @@ class EmpleadoBase(BaseModel):
     salario: float
     estado_empleado: str
 
+class EmpleadoUpdateBase(BaseModel):
+    cod_persona: int
+    cod_tipo_empleado: int
+    cod_area: int
+    cod_tipo_contrato: int
+    fecha_salida: Optional[date] = None
+    motivo_salida: Optional[str] = None
+    fecha_contratacion: date
+    salario: float
+    estado_empleado: str
+
+
+class EmpleadoDespedirBase(BaseModel):
+    fecha_salida: date
+    motivo_salida: str
+
+
 # Esquema para crear empleado
 class EmpleadoCreate(EmpleadoBase):
     pass
 
 # Esquema para modificar empleado
-class EmpleadoUpdate(EmpleadoBase):
+class EmpleadoUpdate(EmpleadoUpdateBase):
     pass
 
 # Esquema para despedir empleado
-class EmpleadoDespedir(EmpleadoBase):
-    fecha_salida: Optional[date]
+class EmpleadoDespedir(EmpleadoDespedirBase):
+    fecha_salida: Optional [date]
     motivo_salida: Optional[str]
 
 class Empleado(EmpleadoBase):

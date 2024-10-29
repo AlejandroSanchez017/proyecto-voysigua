@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from ...schemas.Personas.empleados import EmpleadoCreate, Empleado, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate
 from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area, insertar_tipo_contrato, eliminar_tipo_contrato 
 from ...database import get_db
 
@@ -23,10 +24,14 @@ def modificar_empleado(cod_empleado: int, empleado: EmpleadoUpdate, db: Session 
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/empleados/despedir/{cod_empleado}")
-def despedir_empleado(cod_empleado: int, fecha_salida: str, motivo_salida: str, db: Session = Depends(get_db)):
+async def api_despedir_empleado(
+    cod_empleado: int,
+    datos: EmpleadoDespedir, 
+    db: Session = Depends(get_db)
+):
     try:
-        despedir_empleado(db, cod_empleado, fecha_salida, motivo_salida)
-        return {"message": "Empleado despedido correctamente"}
+        result = despedir_empleado(db, cod_empleado, datos.fecha_salida, datos.motivo_salida)
+        return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
