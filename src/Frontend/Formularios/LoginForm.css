@@ -49,6 +49,14 @@
     margin: -15px 0 15px;
 }
 
+.error {
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-top: -10px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
 .remember-forgot label input{
     accent-color: #fff;
     margin-right: 4px;

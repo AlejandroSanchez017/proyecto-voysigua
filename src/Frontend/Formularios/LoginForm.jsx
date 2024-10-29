@@ -1,66 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import './LoginForm.css';
-import { FaUser, FaLock  } from "react-icons/fa";
-
-
+import { FaUser, FaLock } from "react-icons/fa";
 
 const LoginForm = () => {
-    const [showModal, setShowModal] = useState(false);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
 
-    // Funciones para abrir y cerrar el modal
-    const openModal = () => setShowModal(true);
-    const closeModal = () => setShowModal(false);
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
 
-    // Agregar o remover la clase 'modal-open' al body cuando se abre/cierra el modal
-    useEffect(() => {
-        if (showModal) {
-            document.body.classList.add('modal-open');
-        } else {
-            document.body.classList.remove('modal-open');
+        // Credenciales de prueba 
+        if (process.env.NODE_ENV === "development" && username === "admin" && password === "password123") {
+            localStorage.setItem("authToken", "fakeDevToken");
+            setErrorMessage("");
+            console.log("Inicio de sesión de prueba exitoso");
+            navigate("/home");
+            return;
         }
-    }, [showModal]);
+
+        // Si no son las credenciales de prueba, procede con el flujo normal
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                throw new Error("Error en la autenticación");
+            }
+
+            const data = await response.json();
+            const { token } = data;
+
+            localStorage.setItem("authToken", token);
+            console.log("Login exitoso, token almacenado:", token);
+            setErrorMessage("");
+            navigate("/home");
+        } catch (error) {
+            setErrorMessage("Error en la autenticación, revisa tus credenciales");
+            console.error(error);
+        }
+    };
 
     return (
-        <div>
-            {!showModal && (
-                <div className="wrapper">
-                    <form action="">
-                        <h1>Login</h1>
-                        <div className="input-box">
-                            <input type="text" placeholder="Nombre de Usuario" required />
-                            <FaUser className="icon" />
-                        </div>
-                        <div className="input-box">
-                            <input type="password" placeholder="Contraseña" required />
-                            <FaLock className="icon" />
-                        </div>
-                        <div className="remember-forgot">
-                            <label><input type="checkbox" />Recordar</label>
-                            <a href="#">¿Olvidaste tu contraseña?</a>
-                        </div>
-                        <button type="submit">Ingresar</button>
-                        <div className="register-link">
-                            <a href="#" onClick={openModal}>¿No tienes una cuenta? Regístrate</a>
-                        </div>
-                    </form>
+        <div className="wrapper">
+            <form onSubmit={handleLoginSubmit}>
+                <h1>Login</h1>
+                <div className="input-box">
+                    <input 
+                        type="text" 
+                        placeholder="Nombre de Usuario" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                        required 
+                    />
+                    <FaUser className="icon" />
                 </div>
-            )}
-
-            {showModal && (
-                <div id="modal" className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Registro</h2>
-                        <form>
-                            <input type="text" placeholder="Nombre de Usuario" required />
-                            <input type="email" placeholder="Correo Electrónico" required />
-                            <input type="password" placeholder="Contraseña" required />
-                            <input type="password" placeholder="Confirmar Contraseña" required />
-                            <button type="submit">Registrar</button>
-                        </form>
-                    </div>
+                <div className="input-box">
+                    <input 
+                        type="password" 
+                        placeholder="Contraseña" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        required 
+                    />
+                    <FaLock className="icon" />
                 </div>
-            )}
+                {errorMessage && <p className="error">{errorMessage}</p>}
+                <div className="remember-forgot">
+                    <label><input type="checkbox" />Recordar</label>
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit">Ingresar</button>
+            </form>
         </div>
     );
 };
