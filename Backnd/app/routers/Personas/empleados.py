@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area, insertar_tipo_contrato, eliminar_tipo_contrato 
-from ...schemas.Personas.empleados import EmpleadoCreate, Empleado, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate
 from ...database import get_db
 
 
