@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from sqlalchemy.sql import text  # Esta línea es necesaria para importar 'text'
 from .routers.Personas import personas, empleados
+from .routers.Seguridad import Usuario
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ def test_db(db: Session = Depends(get_db)):
 # Incluir los routers en la aplicación principal
 app.include_router(personas.router)
 app.include_router(empleados.router)
+app.include_router(Usuario.router)
 
 
 @app.get("/")
