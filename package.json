@@ -15,8 +15,15 @@
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.27.0",
+<<<<<<< HEAD
     "react-scripts": "^5.0.1",
     "web-vitals": "4.2.4"
+=======
+    "react-scripts": "5.0.1",
+    "sweetalert2": "^11.14.5",
+    "sweetalert2-react-content": "^5.0.7",
+    "web-vitals": "^2.1.4"
+>>>>>>> 6ffaf857b4c537e39578b73ede51210f016fb4ad
   },
   "scripts": {
     "start": "react-scripts start",
@@ -43,10 +50,14 @@
     ]
   },
   "devDependencies": {
+<<<<<<< HEAD
     "eslint-config-react-app": "^7.0.1"
   },
   "resolutions": {
     "nth-check": "^2.0.1",
     "postcss": "^8.4.31"
+=======
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+>>>>>>> 6ffaf857b4c537e39578b73ede51210f016fb4ad
   }
 }
