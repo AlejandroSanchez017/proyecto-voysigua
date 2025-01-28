@@ -43,7 +43,7 @@ class EmpleadoDespedir(EmpleadoDespedirBase):
     motivo_salida: Optional[str]
 
 class Empleado(EmpleadoBase):
-    cod_persona: int
+    cod_empleado: int
 
     class Config:
         from_attributes = True

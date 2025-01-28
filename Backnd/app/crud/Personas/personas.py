@@ -11,7 +11,7 @@ def insertar_persona(db: Session, persona: PersonaCreate):
     """)
     db.execute(query, {
         "cod_tipo_persona": persona.cod_tipo_persona,
-        "dni": persona.DNI,
+        "dni": persona.dni,
         "primer_nombre": persona.primer_nombre,
         "apellido": persona.apellido,
         "fecha_nacimiento": persona.fecha_nacimiento,

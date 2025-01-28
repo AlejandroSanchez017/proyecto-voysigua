@@ -42,7 +42,7 @@ def obtener_usuario(id: int, db: Session = Depends(get_db)):
     return usuario
 
 # Ruta para obtener todas las Usuario
-@router.get("/usuarios/", response_model=list[Usuario])
+@router.get("/usuarios", response_model=list[Usuario])
 def obtener_usuario (skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     usuario = obtener_todos_los_usuarios(db, skip=skip, limit=limit)
     return usuario

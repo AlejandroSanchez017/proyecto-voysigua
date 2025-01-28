@@ -1,0 +1,278 @@
+/* Estilos generales para la tabla */
+.table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: center; /* Centra el texto horizontalmente */
+  }
+  
+  .table th,
+  .table td {
+    width: 13%; /* Ajusta este valor según la cantidad de columnas */
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+    border: 1px solid #ddd;
+    
+  }
+  
+  .table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .table td {
+    vertical-align: middle; /* Centra el contenido verticalmente */
+  }
+  
+  /* Estilos adicionales para mejorar la apariencia */
+  .table-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .input-editar {
+    width: 80px; /* Ajusta el ancho según sea necesario */
+    padding: 5px; /* Ajusta el espacio interior */
+    font-size: 14px; /* Tamaño de la fuente adecuado */
+    border: 1px solid #ccc; /* Borde discreto */
+    border-radius: 4px; /* Borde redondeado */
+  }
+  
+  /* Estilos para botones */
+  .button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .button:hover {
+    background-color: #45a049;
+  }
+  
+  .form-container {
+    max-width: 400px; /* Limitar el ancho del formulario */
+    margin: 20px auto; /* Centrar el formulario en la página */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    background-color: #ffffff; /* Fondo blanco */
+  }
+  
+  h3 {
+    text-align: center; /* Centrar el título */
+    margin-bottom: 20px; /* Espacio debajo del título */
+    color: #333; /* Color del texto */
+  }
+  
+  .form-input {
+    margin-bottom: 15px; /* Espacio entre inputs */
+    padding: 10px; /* Espacio interno */
+    border: 1px solid #ccc; /* Borde */
+    border-radius: 4px; /* Bordes redondeados */
+    font-size: 16px; /* Tamaño de la fuente */
+  }
+  
+  .checkbox-label {
+    display: flex; /* Usar flex para el checkbox */
+    align-items: center; /* Centrar verticalmente */
+    margin-bottom: 15px; /* Espacio debajo del checkbox */
+  }
+  
+  .form-checkbox {
+    margin-right: 10px; /* Espacio entre el checkbox y el texto */
+  }
+  
+  .submit-button {
+    background-color: #4CAF50; /* Color de fondo del botón */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    padding: 10px 15px; /* Espacio interior */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cambiar cursor al pasar sobre el botón */
+    font-size: 16px; /* Tamaño de la fuente */
+    transition: background-color 0.3s; /* Transición suave para el color de fondo */
+  }
+  
+  .submit-button:hover {
+    background-color: #45a049; /* Color del botón al pasar el cursor */
+  }
+  
+  /*------------------------------------------------------------------------------------------*/
+  /* Estilos para la fila de nuevo usuario */
+  .new-personas-row {
+    background-color: #f9f9f9; /* Fondo claro para resaltar */
+  }
+  
+  /* Estilos para cada celda de la fila de nuevo usuario */
+  .new-personas-cell {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd; /* Borde fino */
+  }
+  
+  /* Estilos para los inputs */
+  .new-personas-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Asegura que ocupe todo el ancho */
+  }
+  
+  .new-user-checkbox {
+    transform: scale(1.2); /* Escala el checkbox un poco */
+  }
+  
+  /* Estilos para los botones */
+  .new-personas-save-btn,
+  .new-personas-cancel-btn {
+    padding: 5px 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .new-personas-save-btn {
+    background-color: #28a745; /* Verde para guardar */
+    color: #fff;
+  }
+  
+  .new-personas-cancel-btn {
+    background-color: #dc3545; /* Rojo para cancelar */
+    color: #fff;
+  }
+  
+  .new-personas-save-btn:hover,
+  .new-personas-cancel-btn:hover {
+    opacity: 0.9; /* Ligera opacidad al pasar el cursor */
+  }
+  
+  
+  /* Estilos generales para los botones */
+  .new-personas-save-btn,
+  .new-personas-cancel-btn,
+  .new-personas-edit-btn,
+  .new-personas-delete-btn {
+    background-color: transparent; /* Fondo transparente */
+    border: none;                 /* Sin borde */
+    cursor: pointer;              /* Puntero de mano al pasar */
+    padding: 8px;                 /* Espaciado interno */
+    border-radius: 50%;           /* Forma circular */
+    display: flex;                /* Centra el ícono */
+    align-items: center;          /* Centra verticalmente */
+    justify-content: center;      /* Centra horizontalmente */
+    transition: background-color 0.3s; /* Animación suave */
+  }
+  
+  /* Estilos específicos del botón de guardar */
+  .new-personas-save-btn {
+    color: #4CAF50;               /* Color verde */
+  }
+  
+  .new-personas-save-btn:hover {
+    background-color: rgba(76, 175, 80, 0.2); /* Fondo verde claro en hover */
+  }
+  
+  /* Estilos específicos del botón de cancelar */
+  .new-personas-cancel-btn{
+    color: #fd2515;               /* Color rojo */
+  }
+  
+  .new-personas-cancel-btn:hover {
+    background-color: rgba(243, 23, 8, 0.053); /* Fondo rojo claro en hover */
+  }
+  
+  .new-personas-delete-btn{
+    color: #fd2515;               /* Color rojo */
+  }
+  
+  .new-personas-delete-btn:hover {
+    background-color: rgba(243, 23, 8, 0.053); /* Fondo rojo claro en hover */
+  }
+  
+  .new-personas-edit-btn{
+    color: #42a9d5;
+  }
+  .new-personas-edit-btn:hover {
+    background-color: rgba(8, 176, 243, 0.053); /* Fondo rojo claro en hover */
+  }
+  
+  /* Ajuste del tamaño del ícono */
+  .new-personas-save-btn svg,
+  .new-personas-cancel-btn svg,
+  .new-personas-edit-btn svg,
+  .new-personas-delete-btn svg {
+    width: 20px;  /* Ancho del ícono */
+    height: 20px; /* Alto del ícono */
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .agregar-persona-btn {
+    background-color: #007bff; /* Azul */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px; /* Esquinas redondeadas */
+  }
+  
+  .agregar-persona-btn:hover {
+    background-color: #0056b3; /* Un tono más oscuro en hover */
+  }
+  .card-title {
+    font-size: 24px;             /* Tamaño de la fuente */
+    font-weight: bold;           /* Texto en negrita */
+    color: #333;                 /* Color del texto */
+    border-bottom: 2px solid #007bff; /* Línea inferior de color azul */
+    padding-bottom: 8px;         /* Espacio debajo del texto */
+    margin-bottom: 16px;         /* Espacio por debajo del título */
+    font-family: Arial, sans-serif; /* Tipo de fuente */
+  }
+
+  /*Diseño para barra de filtracion*/
+.filter-input {
+  width: 100%;                     /* Ocupa todo el ancho disponible */
+  max-width: 300px;                /* Limita el ancho máximo */
+  padding: 10px 15px;              /* Espacio interno */
+  font-size: 16px;                 /* Tamaño de la fuente */
+  border: 2px solid #ccc;         /* Borde gris claro */
+  border-radius: 25px;            /* Bordes redondeados */
+  background-color: #f9f9f9;      /* Fondo gris claro */
+  color: #333;                    /* Color de texto */
+  transition: all 0.3s ease;      /* Transición suave para cambios de estado */
+}
+
+.filter-input::placeholder {
+  color: #888;                    /* Color del texto del placeholder */
+}
+
+.filter-input:focus {
+  border-color: #007bff;          /* Borde azul al hacer foco */
+  outline: none;                  /* Elimina el contorno predeterminado */
+  background-color: #fff;         /* Fondo blanco cuando está enfocado */
+}
+
+.filter-input:hover {
+  border-color: #007bff;          /* Borde azul al pasar el mouse */
+}
+
+.filter-input:disabled {
+  background-color: #e9ecef;      /* Fondo gris cuando está deshabilitado */
+  cursor: not-allowed;            /* Cursor deshabilitado */
+}
