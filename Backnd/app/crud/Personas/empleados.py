@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir
+from sqlalchemy.orm import joinedload
+from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir,EmpleadoResponse
 from ...models.Personas.empleados import Empleado, NombreTipoEmpleado, Areas, TipoContrato
 
 # Insertar empleado llamando a procedimiento almacenado
@@ -24,7 +25,7 @@ def insertar_empleado(db: Session, empleado: EmpleadoCreate):
 def actualizar_empleado(db: Session, cod_empleado: int, empleado: EmpleadoUpdate):
     query = text("""
         CALL actualizar_empleado(:cod_empleado, :cod_persona, :cod_tipo_empleado, :cod_area, 
-                                 :cod_tipo_contrato, :fecha_salida, :motivo_salida, :fecha_contratacion, :salario, :estado_empleado)
+                                 :cod_tipo_contrato, :fecha_contratacion, :salario, :estado_empleado)
     """)
     db.execute(query, {
         "cod_empleado": cod_empleado,
@@ -32,8 +33,6 @@ def actualizar_empleado(db: Session, cod_empleado: int, empleado: EmpleadoUpdate
         "cod_tipo_empleado": empleado.cod_tipo_empleado,
         "cod_area": empleado.cod_area,
         "cod_tipo_contrato": empleado.cod_tipo_contrato,
-        "fecha_salida": empleado.fecha_salida,
-        "motivo_salida": empleado.motivo_salida,
         "fecha_contratacion": empleado.fecha_contratacion,
         "salario": empleado.salario,
         "estado_empleado": empleado.estado_empleado
@@ -74,7 +73,38 @@ def obtener_empleado_por_id(db: Session, cod_empleado: int):
 
 # Obtener todos los empleados
 def obtener_todos_los_empleados(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Empleado).offset(skip).limit(limit).all()
+    empleados = (
+        db.query(Empleado)
+        .options(
+            joinedload(Empleado.nombre_tipo_empleado),
+            joinedload(Empleado.nombre_area),
+            joinedload(Empleado.tipo_contrato)
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    # Convertir los objetos SQLAlchemy en strings antes de devolverlos
+    empleados_response = []
+    for emp in empleados:
+        empleados_response.append(
+            EmpleadoResponse(
+                cod_empleado=emp.cod_empleado,
+                cod_persona=emp.cod_persona,
+                cod_tipo_empleado=emp.cod_tipo_empleado,
+                cod_area=emp.cod_area,
+                cod_tipo_contrato=emp.cod_tipo_contrato,
+                fecha_contratacion=emp.fecha_contratacion,
+                salario=emp.salario,
+                estado_empleado=emp.estado_empleado,
+                nombre_tipo_empleado=emp.nombre_tipo_empleado.nombre_tipo_empleado if emp.nombre_tipo_empleado else None,
+                nombre_area=emp.nombre_area.nombre_area if emp.nombre_area else None,
+                tipo_contrato=emp.tipo_contrato.tipo_contrato if emp.tipo_contrato else None,
+            )
+        )
+
+    return empleados_response
 
 # Insertar TipoEmpleado
 def insertar_tipo_empleado(db: Session, nombre_tipo_empleado: NombreTipoEmpleadoCreate):

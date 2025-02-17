@@ -1,28 +1,31 @@
 from pydantic import BaseModel
 from datetime import date
+from typing import Optional
 
 class PersonaBase(BaseModel):
     primer_nombre: str
-    apellido: str
+    apellido: Optional[str]
     fecha_nacimiento: date
-    dni:str
+    dni: str
     sexo: str
     correo: str
     estado: str
     cod_tipo_persona: int
 
+
 class PersonaCreate(PersonaBase):
     pass
 
+
 class PersonaUpdate(PersonaBase):
-    pass # No se necesita agregar más atributos por ahora
+    pass
+
 
 class Persona(PersonaBase):
     cod_persona: int
 
     class Config:
-        from_attributes = True
-
+        from_attributes = True  
 
 class TipoPersonaBase(BaseModel):
     tipo_persona: str

@@ -42,8 +42,11 @@ class EmpleadoDespedir(EmpleadoDespedirBase):
     fecha_salida: Optional [date]
     motivo_salida: Optional[str]
 
-class Empleado(EmpleadoBase):
+class EmpleadoResponse(EmpleadoBase):
     cod_empleado: int
+    nombre_tipo_empleado: Optional[str] = None 
+    nombre_area: Optional[str] = None  
+    tipo_contrato: Optional[str] = None  
 
     class Config:
         from_attributes = True

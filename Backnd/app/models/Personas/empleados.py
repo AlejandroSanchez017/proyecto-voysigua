@@ -28,9 +28,9 @@ class Empleado(Base):
     cod_tipo_contrato = Column(Integer, ForeignKey("tbl_tipo_contrato.cod_tipo_contrato"))
     fecha_salida = Column(Date, nullable=True)
     motivo_salida = Column(String(500), nullable=True)
-    fecha_contratacion = Column(Date, nullable=False)
-    salario = Column(DECIMAL(10, 2), nullable=False)
-    estado_empleado = Column(CHAR(1), nullable=False)
+    fecha_contratacion = Column(Date, nullable=True)
+    salario = Column(DECIMAL(10, 2), nullable=True)
+    estado_empleado = Column(CHAR(1), nullable=True)
 
  # Relación con TipoEmpleado
     nombre_tipo_empleado = relationship("NombreTipoEmpleado", back_populates="empleado")

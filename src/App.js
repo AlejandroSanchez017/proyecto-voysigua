@@ -7,6 +7,9 @@ import LoginForm from './componentes/LoginForm';
 import Adminlte from './componentes/adminlte';
 import HomePrincipal from './componentes/HomePrincipal';
 
+
+
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -28,6 +31,7 @@ function App() {
               <Route path="/gestionempleados" element={<GestionEmpleados />}>
                 <Route path="/gestionempleados/admindashboard" element={<Adminlte />} />
               </Route>
+              
             </>
           ) : (
             <>

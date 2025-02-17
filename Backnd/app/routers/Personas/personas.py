@@ -1,14 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ...crud.Personas.personas import insertar_persona, actualizar_persona, eliminar_persona, obtener_persona_por_id, obtener_todas_las_personas, insertar_tipo_persona, eliminar_tipo_persona
-from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate, Persona, TipoPersonaCreate, TipoPersona
+from ...schemas.Personas.personas import PersonaCreate, PersonaUpdate, Persona, TipoPersonaCreate
 from ...database import get_db
+from typing import List 
 
 router = APIRouter()
-
-# Endpoint para consultar una persona por ID
-
-# Endpint para consultar toda la tabla de personas
 
 # Endpoint para insertar una nueva persona
 @router.post("/personas/")
@@ -49,7 +46,7 @@ def leer_persona(persona_id: int, db: Session = Depends(get_db)):
     return persona
 
 # Ruta para obtener todas las personas
-@router.get("/personas/", response_model=list[Persona])
+@router.get("/personas", response_model=List[Persona])  
 def leer_todas_las_personas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     personas = obtener_todas_las_personas(db, skip=skip, limit=limit)
     return personas

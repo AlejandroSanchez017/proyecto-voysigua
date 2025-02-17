@@ -1,97 +1,145 @@
-/* Estilos solo aplicados a la clase login-form */
-.login-form .wrapper {
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-    padding: 40px;
-    background-color: #f4f4f4;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    color: #333;
+/* Contenedor principal con fondo */
+.login-content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 94vh;
+    background: url('/src/Imagenes/imagenlogin.webp') no-repeat center center/cover;
 }
 
-/* Form Title */
-.login-form .wrapper h1 {
+/* Tarjeta del Login */
+.login-card {
+    width: 350px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
+}
+
+/* Imagen superior */
+.login-card .header-image {
+    width: 100%;
+    height: 180px;
+    background: url('/src/Imagenes/background2.jpg') no-repeat center center/cover;
+    position: relative;
+}
+
+/* Círculo en la imagen */
+.circle-logo {
+    width: 100px;  /* Aumentamos el tamaño */
+    height: 100px; /* Aumentamos el tamaño */
+    background: #3ce759;
+    color: white;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -50px;  /* Ajustamos la posición */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px; /* Aumentamos el tamaño de la fuente */
+    font-weight: bold;
+    line-height: 100px;  /* Centramos el texto verticalmente */
+}
+
+/* Formulario */
+.login-card form {
+    padding: 40px 30px 30px;
 }
 
 /* Input Box */
-.login-form .input_box {
+.input_box {
     position: relative;
-    margin-bottom: 20px;
+    width: 100%;
+    margin: 15px 0;
 }
 
-.login-form .input_box input {
+/* Estilos del input con icono */
+.input_box input {
     width: 100%;
-    padding: 12px 45px 12px 15px;
-    border: 1px solid #ccc;
+    padding: 12px 40px 12px 40px;  /* Aumentamos el padding izquierdo para el icono */
+    border: 2px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    color: #333;
-    box-sizing: border-box;
-}
-
-.login-form .input_box input:focus {
-    border-color: #5d9cec;
     outline: none;
+    background: #fff;
 }
 
-/* Icon */
-.login-form .icon {
+/* Íconos dentro del input */
+.input_box .icon {
     position: absolute;
+    left: 10px;
     top: 50%;
-    right: 15px;
     transform: translateY(-50%);
     color: #aaa;
     font-size: 18px;
 }
 
-/* Remember and Forgot */
-.login-form .remember-forgot {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    color: #666;
+/* Botón para mostrar/ocultar contraseña */
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #aaa;
 }
 
-.login-form .remember-forgot label {
-    display: flex;
-    align-items: center;
+/* Cambia el borde cuando el input está en foco */
+.input_box input:focus {
+    border: 2px solid #3ce759;
 }
 
-.login-form .remember-forgot input[type="checkbox"] {
-    margin-right: 8px;
-}
-
-/* Submit Button */
-.login-form button[type="submit"] {
+/* Botón de Iniciar Sesión */
+button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #5d9cec;
+    background: #3ce759;
     border: none;
+    color: white;
+    font-size: 20px;
     border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s;
+    margin-top: 10px;
 }
 
-.login-form button[type="submit"]:hover {
-    background-color: #4a8ad4;
+button[type="submit"]:hover {
+    background: #3ce759;
 }
 
-/* Forgot Password Link */
-.login-form .remember-forgot a {
-    color: #5d9cec;
+/* Enlace de recuperar contraseña */
+.forgot-password {
+    text-align:right;
+    font-size: 20px;  /* Aumentamos el tamaño de la fuente */
+    margin-top: 20px;  /* Aumentamos el margen para separarlo más */
+}
+
+.forgot-password a {
+    color: #3ce759;
     text-decoration: none;
 }
 
-.login-form .remember-forgot a:hover {
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+/* Registro */
+.signup-link {
+    font-size: 16px;  /* Aumentamos el tamaño de la fuente */
+    margin-top: 15px;  /* Aumentamos el margen */
+}
+
+.signup-link a {
+    color: #3ce759;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link a:hover {
     text-decoration: underline;
 }

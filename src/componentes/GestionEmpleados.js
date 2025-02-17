@@ -250,16 +250,15 @@ const empleadosFiltrados = empleados.filter(empleado =>
 );
 
 return (
-    <div className="content-wrapper">
+    <div>
         <Adminlte />
-      <section className="content-header">
-        <h1>Gestión de Empleados</h1>
-      </section>
+        <div className="content-wrapper">
+        <h1> </h1>
       <section className="content">
         <div className="container-fluid">
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">Lista de Empleados</h3>
+              <h3 className="card-title">GESTION DE EMPLEADOS</h3>
               <div className="button-container">
               <button onClick={() => setShowNewEmpleadosRow(true)} className="agregar-empleado-btn">
                 Agregar empleado
@@ -423,6 +422,7 @@ return (
         </div>
       </section>
       <Outlet />
+      </div>
     </div>
   );
 };

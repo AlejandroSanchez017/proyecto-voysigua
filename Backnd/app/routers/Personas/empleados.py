@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from ...schemas.Personas.empleados import EmpleadoCreate, Empleado, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate
+from ...schemas.Personas.empleados import EmpleadoCreate, EmpleadoResponse, NombreTipoEmpleadoCreate, AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate
 from ...crud.Personas.empleados import insertar_empleado, actualizar_empleado, despedir_empleado, eliminar_empleado, obtener_empleado_por_id, obtener_todos_los_empleados, insertar_tipo_empleado, eliminar_tipo_empleado, insertar_area, eliminar_area, insertar_tipo_contrato, eliminar_tipo_contrato 
 from ...database import get_db
 
@@ -50,7 +50,7 @@ def obtener_empleado(empleado_id: int, db: Session = Depends(get_db)):
     empleado = obtener_empleado_por_id(db, empleado_id)
     return empleado
 
-@router.get("/empleados/", response_model=list[Empleado])
+@router.get("/empleados", response_model=list[EmpleadoResponse])
 def obtener_empleado (skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     empleados = obtener_todos_los_empleados(db, skip=skip, limit=limit)
     return empleados

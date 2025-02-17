@@ -161,13 +161,13 @@ const handleDelete = async (id) => {
 };
 
 //boolean
-const handleInputChange = (e, field, value) => {
-    console.log(`Field: ${field}, Value: ${value}`);
-    setEditedUserData({
-      ...editedUserData,
-      [field]: value,
-    });  
-  };
+//const handleInputChange = (e, field, value) => {
+    //console.log(`Field: ${field}, Value: ${value}`);
+   // setEditedUserData({
+    //  ...editedUserData,
+     // [field]: value,
+   // });  
+  //};
 
 //Guardar datos
 const handleSaveNewUser = async () => {
@@ -242,16 +242,15 @@ const usuariosFiltradas = usuarios.filter(usuario =>
 );
   
   return (
-    <div className="content-wrapper">
+    <div>
       <Adminlte />
-      <section className="content-header">
-        <h1>Gestión de Usuarios</h1>
-      </section>
+      <div className="content-wrapper">  
+        <h1> </h1>
       <section className="content">
         <div className="container-fluid">
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">Lista de Usuarios</h3>
+              <h3 className="card-title">GESTION DE USUARIOS</h3>
               <div className="button-container">
               <button onClick={() => setShowNewUserRow(true)} className="agregar-usuario-btn">
                 Agregar Usuario
@@ -332,13 +331,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                     usuariosFiltradas.map((usuario) => (
                       <tr key={usuario.id}>
                         <td>{usuario.id}</td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="number" name="cod_persona" value={editedUserData.cod_persona || ''} onChange={(e) => setEditedUserData({ ...editedUserData, cod_persona: e.target.value })} />
-                          ) : (
-                            usuario.cod_persona
-                          )}
-                        </td>
+                        <td>{usuario.cod_persona}</td>
                         <td>
                           {editingUserId === usuario.id ? (
                             <input className="input-editar" type="text" name="nombre" value={editedUserData.nombre || ''} onChange={(e) =>setEditedUserData({ ...editedUserData, nombre: e.target.value })
@@ -355,13 +348,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                             usuario.password
                           )}
                         </td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="text" name="remember_token" value={editedUserData.remember_token || ''} onChange={(e) => setEditedUserData({ ...editedUserData, remember_token: e.target.value })}/>
-                          ) : (
-                            usuario.remember_token
-                          )}
-                        </td>
+                        <td> {usuario.remember_token}</td>
                         <td>
                           {editingUserId === usuario.id ? (
                             <input className="input-editar" type="text" name="username" value={editedUserData.username || ''} onChange={(e) => setEditedUserData({ ...editedUserData, username: e.target.value })} />
@@ -369,13 +356,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                             usuario.username
                           )}
                         </td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="number" name="preguntas_contestadas" value={editedUserData.preguntas_contestadas || ''} onChange={(e) =>setEditedUserData({ ...editedUserData, preguntas_contestadas: e.target.value })}/>
-                          ) : (
-                            usuario.preguntas_contestadas
-                          )}
-                        </td>
+                        <td> {usuario.preguntas_contestadas}</td>
                         <td>
                           {editingUserId === usuario.id ? (
                             <input className="input-editar" type="number" name="estado" value={editedUserData.estado || ''} onChange={(e) => setEditedUserData({ ...editedUserData, estado: e.target.value })} />
@@ -383,46 +364,10 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                             usuario.estado
                           )}
                         </td>
-                        <td>
-                          {
-                            editingUserId === usuario.id ? (
-                              <input className="input-editar" type="checkbox" checked={editedUserData.primera_vez || false} onChange={(e) =>
-                                  handleInputChange(
-                                    e,
-                                    "primera_vez",
-                                    e.target.checked
-                                  )
-                                } // Envía el valor booleano
-                              />
-                            ) : usuario.primera_vez ? (
-                              "Sí"
-                            ) : (
-                              "No"
-                            ) // Mostrar "Sí" o "No" según el valor booleano
-                          }
-                        </td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="date" name="fecha_vencimiento" value={editedUserData.fecha_vencimiento|| ''} onChange={(e) => setEditedUserData({ ...editedUserData, fecha_vencimiento: e.target.value }) }/>
-                          ) : (
-                            usuario.fecha_vencimiento
-                          )}
-                        </td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="number" name="intentos_preguntas" value={editedUserData.intentos_preguntas || ''}   onChange={(e) => setEditedUserData({ ...editedUserData, intentos_preguntas: e.target.value })
-                            }/>
-                          ) : (
-                            usuario.intentos_preguntas
-                          )}
-                        </td>
-                        <td>
-                          {editingUserId === usuario.id ? (
-                            <input className="input-editar" type="number" name="preguntas_correctas" value={editedUserData.preguntas_correctas || ''} onChange={(e) => setEditedUserData({ ...editedUserData, preguntas_correctas: e.target.value }) }/>
-                          ) : (
-                            usuario.preguntas_correctas
-                          )}
-                        </td>
+                        <td> {usuario.primera_vez} </td>
+                        <td> {usuario.fecha_vencimiento} </td>
+                        <td> {usuario.intentos_preguntas}</td>
+                        <td> {usuario.preguntas_correctas} </td>
                         <td>
                           {editingUserId === usuario.id ? (
                             <>
@@ -430,9 +375,11 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                               <button className="new-user-cancel-btn" onClick={() => setEditingUserId(null)}>{" "}<MdCancel />Cancelar{" "}</button>
                             </>
                           ) : (
+                            <>
                             <button className="new-user-edit-btn" onClick={() => handleEditClick(usuario)}><FaEdit />Editar</button>
-                          )}
-                          <button className="new-user-delete-btn" onClick={() => handleDelete(usuario.id)}><MdDelete />Eliminar</button>
+                            <button className="new-user-delete-btn" onClick={() => handleDelete(usuario.id)}><MdDelete />Eliminar</button>
+                            </>
+                          )} 
                         </td>
                       </tr>
                       
@@ -448,6 +395,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 };

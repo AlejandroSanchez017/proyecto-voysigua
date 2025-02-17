@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 
 function App() {
   return (
-    <div>
+    <div className="">
+      
       {/* Main Sidebar Container */}
       <aside className="main-sidebar sidebar-dark-primary elevation-4">
         {/* Brand Logo */}
@@ -28,7 +29,7 @@ function App() {
               />
             </div>
             <div className="info">
-              <a href="./index.html" className="d-block">
+              <a href="./LoginForm.js" className="d-block">
                 Iniciar Sesion
               </a>
             </div>
