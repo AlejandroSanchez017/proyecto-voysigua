@@ -5,9 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ...models.Seguridad.Usuarios import Usuario
 from ...crud.Seguridad.Usuarios import (
-    create_user, update_user, eliminar_usuario, obtener_todos_los_usuarios_por_id, obtener_todos_los_usuarios as crud_obtener_todos_los_usuarios)
-from ...schemas.Seguridad.Usuarios import UsuarioResponse, UsuarioCreate, UsuarioUpdate, LoginSchema
-from ...utils.security import authenticate_user, create_access_token, get_current_user
+    obtener_email_por_usuario, verificar_otp, autenticar_usuario, generar_otp, create_user, update_user, eliminar_usuario, obtener_todos_los_usuarios_por_id, obtener_todos_los_usuarios as crud_obtener_todos_los_usuarios)
+from ...schemas.Seguridad.Usuarios import UsuarioResponse, UsuarioCreate, UsuarioUpdate, LoginSchema, OTPVerifySchema
+from ...utils.security import  create_access_token, get_current_user
+from ...utils.email_utils import enviar_email
 from ...database import get_db
 from typing import List 
 
@@ -72,20 +73,53 @@ def obtener_todos_los_usuarios(skip: int = 0, limit: int = 10, db: Session = Dep
 # Endpoint para iniciar sesión y obtener un token de acceso
 @router.post("/login")
 def login(login: LoginSchema, db: Session = Depends(get_db)):
-    user = authenticate_user(db, login) 
+    user = autenticar_usuario(db, login.username, login.password)
     
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
 
-    #  Generar el token JWT (extraemos solo el `access_token`)
-    access_token = create_access_token(data={"sub": user.username})
+    # Obtener email del usuario
+    email = obtener_email_por_usuario(db, login.username)
+    if not email:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el correo del usuario")
+    
+    # Generar código OTP
+    otp_code = generar_otp(db, login.username)
+    if not otp_code:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo generar el código OTP")
+    
+    # Enviar código OTP por email
+    enviar_email(email, otp_code)
+    
+    return {"message": "Se ha enviado un código OTP a tu correo electrónico. Ingrese el código para completar el login."}
 
-    # Guardar solo el `access_token` en la base de datos
-    user.remember_token = str(access_token)  
-    db.commit()  
-    db.refresh(user) 
+@router.post("/verify-otp")
+def verify_otp(data: OTPVerifySchema, db: Session = Depends(get_db)):
+    # Buscar el usuario en la base de datos
+    user = db.query(Usuario).filter(Usuario.username == data.username).first()
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Verificar si el OTP es correcto
+    if not verificar_otp(db, data.username, data.otp_code):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Código OTP inválido")
+
+    # Generar el token JWT
+    access_token = create_access_token(data={"sub": data.username})
+
+    # ❌ ERROR: Estás guardando un diccionario en `remember_token`
+    # user.remember_token = {"access_token": access_token, "token_type": "bearer", "expires_in": str(datetime.utcnow())}
+
+    # ✅ SOLUCIÓN: Guarda solo el string del token
+    user.remember_token = str(access_token)  # Guarda solo el token como un string
+    db.commit()
+
+    return {
+        "message": "✅ Autenticación exitosa",
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 
 

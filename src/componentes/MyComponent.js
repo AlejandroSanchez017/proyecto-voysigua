@@ -20,11 +20,8 @@ const MyComponent = () => {
   password: "",
   token: "",
   username: "",
-  preguntas_contestadas: "",
   estado: 1,
   primera_vez: false,
-  intentos_preguntas:"",
-  preguntas_correctas: "",
   fecha_vencimiento: "",
 });
 
@@ -160,15 +157,6 @@ const handleDelete = async (id) => {
   }
 };
 
-//boolean
-//const handleInputChange = (e, field, value) => {
-    //console.log(`Field: ${field}, Value: ${value}`);
-   // setEditedUserData({
-    //  ...editedUserData,
-     // [field]: value,
-   // });  
-  //};
-
 //Guardar datos
 const handleSaveNewUser = async () => {
   try {
@@ -207,11 +195,8 @@ const handleSaveNewUser = async () => {
       password: "",
       token: "",
       username: "",
-      preguntas_contestadas: "",
       estado: 1,
       primera_vez: false,
-      intentos_preguntas: "",
-      preguntas_correctas: "",
       fecha_vencimiento: "",
     });
     setShowNewUserRow(false);  // Ocultar la fila de "Agregar nuevo usuario"
@@ -250,14 +235,13 @@ const usuariosFiltradas = usuarios.filter(usuario =>
         <div className="container-fluid">
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">GESTION DE USUARIOS</h3>
-              <div className="button-container">
-              <button onClick={() => setShowNewUserRow(true)} className="agregar-usuario-btn">
+              <h3 className="card-title">GESTION DE USUARIOS</h3>           
+            </div>
+            <div  className="button-container">
+            <button onClick={() => setShowNewUserRow(true)} className="agregar-usuario-btn">
                 Agregar Usuario
-              </button>
+            </button>
             </div>
-            </div>
-            <div className="card-body">
             <input
                 type="text"
                 placeholder="Filtrar por Nombre..."
@@ -266,21 +250,20 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                 className="filter-input"
               />
               {error && <p style={{ color: "red" }}>Error: {error}</p>}
+
+            <div className="card-body">
               <table className="table table-bordered table-striped">
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>cod_persona</th>
+                    <th>Codigo de Personas</th>
                     <th>Nombre</th>
-                    <th>Password</th>
+                    <th>Contraseña</th>
                     <th>Remember token</th>
-                    <th>Username</th>
-                    <th>Preguntas contestadas</th>
+                    <th>Nombre de Usuario</th>
                     <th>Estado</th>
                     <th>Primera vez</th>
                     <th>Fecha vencimiento</th>
-                    <th>Intentos preguntas</th>
-                    <th>Preguntas correctas</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -304,9 +287,6 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                       <input type="text" className="new-user-input" value={newUserData.username} onChange={(e) => setNewUserData({ ...newUserData, username: e.target.value })} />
                     </td>
                     <td className="new-user-cell">
-                      <input type="number" className="new-user-input" value={newUserData.preguntas_contestadas} onChange={(e) => setNewUserData({ ...newUserData, preguntas_contestadas: e.target.value })} />
-                    </td>
-                    <td className="new-user-cell">
                       <input type="number" className="new-user-input" value={newUserData.estado} onChange={(e) => setNewUserData({ ...newUserData, estado: e.target.value })} />
                     </td>
                     <td className="new-user-cell">
@@ -314,12 +294,6 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                     </td>
                     <td className="new-user-cell">
                       <input type="date" className="new-user-input" value={newUserData.fecha_vencimiento} onChange={(e) => setNewUserData({ ...newUserData, fecha_vencimiento: e.target.value })} />
-                    </td>
-                    <td className="new-user-cell">
-                      <input type="number" className="new-user-input" value={newUserData.intentos_preguntas} onChange={(e) => setNewUserData({ ...newUserData, intentos_preguntas: e.target.value })} />
-                    </td>
-                    <td className="new-user-cell">
-                      <input type="number" className="new-user-input" value={newUserData.preguntas_correctas} onChange={(e) => setNewUserData({ ...newUserData, preguntas_correctas: e.target.value })} />
                     </td>
                     <td className="new-user-cell">
                       <button onClick={handleSaveNewUser} className="new-user-save-btn"><FaSave />Guardar</button>
@@ -345,7 +319,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                           {editingUserId === usuario.id ? (
                             <input className="input-editar" type="text" name="password" value={editedUserData.password || ''} onChange={(e) => setEditedUserData({ ...editedUserData, password: e.target.value }) }/>
                           ) : (
-                            usuario.password
+                           "*******"
                           )}
                         </td>
                         <td> {usuario.remember_token}</td>
@@ -356,7 +330,7 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                             usuario.username
                           )}
                         </td>
-                        <td> {usuario.preguntas_contestadas}</td>
+                        
                         <td>
                           {editingUserId === usuario.id ? (
                             <input className="input-editar" type="number" name="estado" value={editedUserData.estado || ''} onChange={(e) => setEditedUserData({ ...editedUserData, estado: e.target.value })} />
@@ -366,8 +340,6 @@ const usuariosFiltradas = usuarios.filter(usuario =>
                         </td>
                         <td> {usuario.primera_vez} </td>
                         <td> {usuario.fecha_vencimiento} </td>
-                        <td> {usuario.intentos_preguntas}</td>
-                        <td> {usuario.preguntas_correctas} </td>
                         <td>
                           {editingUserId === usuario.id ? (
                             <>

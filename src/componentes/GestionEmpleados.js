@@ -259,13 +259,12 @@ return (
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">GESTION DE EMPLEADOS</h3>
-              <div className="button-container">
+            </div>
+            <div className="button-container">
               <button onClick={() => setShowNewEmpleadosRow(true)} className="agregar-empleado-btn">
                 Agregar empleado
               </button>
             </div>
-            </div>
-            <div className="card-body">
             <input
                 type="text"
                 placeholder="Filtrar por codigo empleado"
@@ -274,13 +273,15 @@ return (
                 className="filter-input"
               />
               {error && <p style={{ color: "red" }}>Error: {error}</p>}
+            <div className="card-body">
+            
               <table className="table table-bordered table-striped">
                 <thead>
                   <tr>
-                    <th>cod_empleado</th>
+                    <th>Codigo de Empleado</th>
                     <th>Persona</th>
                     <th>Tipo empleado</th>
-                    <th>Area</th>
+                    <th>Area De Trabajo</th>
                     <th>Tipo Contrato</th>
                     <th>Fecha Salida</th>
                     <th>Motivo Salida</th>

@@ -10,9 +10,7 @@ class Usuario(Base):
     password = Column(String(255), nullable=False)  # Guardar encriptada
     remember_token = Column(String(512), nullable=True)  # Para recordar sesión
     username = Column(String(255), unique=True, nullable=False)  # Usuario único
-    preguntas_contestadas = Column(Integer, default=0, nullable=False)
     estado = Column(Integer, default=1, nullable=False)  # 1 = Activo, 0 = Inactivo
     primera_vez = Column(Boolean, default=True, nullable=False)
     fecha_vencimiento = Column(Date, nullable=False)
-    intentos_preguntas = Column(Integer, default=0, nullable=False)
-    preguntas_correctas = Column(Integer, default=0, nullable=False)
+    otp_secret = Column(String, nullable=True)

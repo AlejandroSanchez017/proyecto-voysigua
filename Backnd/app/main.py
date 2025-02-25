@@ -5,9 +5,20 @@ from sqlalchemy.sql import text  # Esta línea es necesaria para importar 'text'
 from .routers.Personas import personas, empleados
 from .routers.Seguridad import Usuario
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers.Seguridad.Autenticacion import router as auth_routes
+import sys
+import locale
 
+sys.stdout.reconfigure(encoding='utf-8')
+locale.setlocale(locale.LC_ALL, "es_ES.UTF-8") 
 
 app = FastAPI()
+
+# Registrar rutas
+app.include_router(auth_routes, prefix = "/auth")
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
 
 origins = ["http://localhost:3000"],  # URL de tu aplicación React en modo desarrollo ]
 

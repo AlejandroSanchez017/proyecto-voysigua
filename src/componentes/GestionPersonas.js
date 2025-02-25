@@ -256,13 +256,12 @@ return (
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">GESTION DE PERSONAS</h3>
-              <div className="button-container">
+            </div>
+            <div className="button-container">
               <button onClick={() => setShowNewPersonasRow(true)} className="agregar-persona-btn">
                 Agregar Persona
               </button>
             </div>
-            </div>
-            <div className="card-body">
             <input
                 type="text"
                 placeholder="Filtrar por Nombre..."
@@ -271,14 +270,16 @@ return (
                 className="filter-input"
               />
               {error && <p style={{ color: "red" }}>Error: {error}</p>}
+            <div className="card-body">
+           
               <table className="table table-bordered table-striped">
                 <thead>
                   <tr>
-                    <th>Cod persona</th>
-                    <th>Cod tipo persona</th>
+                    <th>Codigo de persona</th>
+                    <th>Codigo Tipo Persona</th>
                     <th>Dni</th>
-                    <th>Primer Nombre</th>
-                    <th>Apellido</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
                     <th>Fecha nacimiento</th>
                     <th>Sexo</th>
                     <th>Correo</th>
@@ -289,7 +290,7 @@ return (
                 <tbody>
                 {showNewPersonasRow && (
                     <tr className="new-personas-row">
-                    <td className="new-personas-cell">Nuevo Persona</td>
+                    <td className="new-personas-cell">Nueva Persona</td>
                     <td className="new-personas-cell">
                       <input type="number" className="new-personas-input" value={newPersonasData.cod_tipo_persona} onChange={(e) => setNewPersonasData({ ...newPersonasData, cod_tipo_persona: e.target.value })} />
                     </td>
@@ -388,9 +389,11 @@ return (
                               <button className="new-personas-cancel-btn" onClick={() => setEditingPersonasId(null)}>{" "}<MdCancel />Cancelar{" "}</button>
                             </>
                           ) : (
+                            <>
                             <button className="new-personas-edit-btn" onClick={() => handleEditClick(persona)}><FaEdit />Editar</button>
+                            <button className="new-personas-delete-btn" onClick={() => handleDelete(persona.cod_persona)}><MdDelete />Eliminar</button>
+                            </>
                           )}
-                          <button className="new-personas-delete-btn" onClick={() => handleDelete(persona.cod_persona)}><MdDelete />Eliminar</button>
                         </td>
                       </tr>
                       

@@ -1,119 +1,298 @@
-/* Estilos generales para la tabla */
-.table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 16px;
-    text-align: center; /* Centra el texto horizontalmente */
-  }
-  
-  .table th,
-  .table td {
-    width: 15%; /* Ajusta este valor según la cantidad de columnas */
-    padding: 11px;
-    text-align: center;
-    word-wrap: break-word;
-    border: 1px solid #ddd;
-    
-  }
-  
-  .table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
-  
-  .table td {
-    vertical-align: middle; /* Centra el contenido verticalmente */
-  }
-  
-  /* Estilos adicionales para mejorar la apariencia */
-  .table-container {
+/* Estilos generales */
+.header-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
   }
   
-  .input-editar {
-    width: 80px; /* Ajusta el ancho según sea necesario */
-    padding: 5px; /* Ajusta el espacio interior */
-    font-size: 14px; /* Tamaño de la fuente adecuado */
-    border: 1px solid #ccc; /* Borde discreto */
-    border-radius: 4px; /* Borde redondeado */
+  /* Título de Gestión de Empleados */
+  .card-title {
+    font-size: 34px;
+    font-weight: bold;
+    text-align: center;
+    color: #1B5E20;
+    font-family: 'Lora', serif;
+    position: relative;
+    margin-bottom: 15px;
   }
   
-  /* Estilos para botones */
-  .button {
-    background-color: #4CAF50;
+  /* Línea decorativa debajo del título */
+  .card-title::after {
+    content: "";
+    display: block;
+    width: 120px;
+    height: 4px;
+    background: #1B5E20;
+    margin: 5px auto;
+    border-radius: 2px;
+  }
+  
+  /* Barra de búsqueda con icono */
+  .filter-input{
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: #f9f9f9;
+    border: 2px solid #1B5E20;
+    border-radius: 25px;
+    padding: 12px 18px;
+    width: 100%;
+    max-width: 350px;
+    transition: all 0.3s ease;
+  }
+  
+  .filter-input:hover {
+    border-color: #145A32;
+  }
+  
+  /* Nueva tabla con diseño mejorado */
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .table {
+    width: 95%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    margin: auto;
+  }
+  
+  /* Encabezado con verde mejorado */
+  .table th {
+    background: linear-gradient(to right, #1B5E20, #4CAF50);
     color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 14px;
+    text-align: center;
+    border-bottom: 3px solid #1B5E20;
+  }
+  
+  /* Celdas mejoradas con centrado vertical y contenido expandible */
+  .table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    max-width: 250px;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    vertical-align: middle;
+    word-wrap: break-word;
+  }
+  
+  /* Ajuste específico para Remember Token */
+  .table td.remember-token {
+    max-width: 400px;
+    overflow: visible;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+  .table td input {
+    width: 90%; /* Evita que los inputs sean más grandes que la celda */
+    text-align: center;
+}
+  
+  /* Alternancia de colores en las filas */
+  .table tr:nth-child(even) {
+    background-color: #E8F5E9;
+  }
+  
+  /* Efecto hover más fluido */
+  .table tr:hover {
+    background-color: #A5D6A7;
+    transform: scale(1.01);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /*Botones*/
+  /* Botones de acción mejorados */
+  .new-empleados-edit-btn{
+    transform-origin: center;
     padding: 10px 15px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+    min-width: 120px;  /* Tamaño uniforme */
+    height: 45px; /* Altura fija para todos */
+  }
+  .new-empleados-cancel-btn{
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+    min-width: 120px;  /* Tamaño uniforme */
+    height: 45px; /* Altura fija para todos */
+  }
+  .new-empleados-delete-btn{
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+    min-width: 120px;  /* Tamaño uniforme */
+    height: 45px; /* Altura fija para todos */
+  }
+  .new-empleados-save-btn{
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+    min-width: 120px;  /* Tamaño uniforme */
+    height: 45px; /* Altura fija para todos */
   }
   
-  .button:hover {
-    background-color: #45a049;
+  /* Botón de Editar */
+  .new-empleados-edit-btn {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #388E3C;
   }
   
-  .form-container {
-    max-width: 400px; /* Limitar el ancho del formulario */
-    margin: 20px auto; /* Centrar el formulario en la página */
-    padding: 20px;
-    border: 1px solid #ddd;
+  .new-empleados-edit-btn:hover {
+    background-color: #388E3C;
+    border-color: #1B5E20;
+    transform: scale(1.05);
+  }
+  
+  /* Botón de Eliminar */
+  .new-empleados-delete-btn {
+    background-color: #D94E41;
+    color: white;
+    border-color: #B03A2E;
+  }
+  
+  .new-empleados-delete-btn:hover {
+    background-color: #D32F2F;
+    border-color: #B71C1C;
+    transform: scale(1.05);
+  }
+  
+  /* Botón de Guardar */
+  .new-empleados-save-btn {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #388E3C;
+  }
+  
+  .new-empleados-save-btn:hover {
+    background-color: #388E3C;
+    border-color: #1B5E20;
+    transform: scale(1.05);
+  }
+  
+  /* Botón de Cancelar */
+  .new-empleados-cancel-btn {
+    background-color: #D94E41;
+    color: white;
+    border-color: #B03A2E;
+  }
+  
+  .new-empleados-cancel-btn:hover {
+    background-color: #D32F2F;
+    border-color: #B71C1C;
+    transform: scale(1.05);
+  }
+  /*  Contenedor para alinear el botón a la derecha */
+  .button-container {
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón a la derecha */
+    padding: 10px 20px;
+  }
+  
+  /* Estilo del botón "Agregar Empleado" */
+  .agregar-empleado-btn {
+    background-color: #007bff; /* Azul */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
     border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    background-color: #ffffff; /* Fondo blanco */
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre icono y texto */
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
   }
   
-  h3 {
-    text-align: center; /* Centrar el título */
-    margin-bottom: 20px; /* Espacio debajo del título */
-    color: #333; /* Color del texto */
+  .agregar-empleado-btn:hover {
+    background-color: #0056b3; /* Azul más oscuro */
+    border-color: #003f88;
+    transform: scale(1.05);
   }
   
-  .form-input {
-    margin-bottom: 15px; /* Espacio entre inputs */
-    padding: 10px; /* Espacio interno */
-    border: 1px solid #ccc; /* Borde */
-    border-radius: 4px; /* Bordes redondeados */
-    font-size: 16px; /* Tamaño de la fuente */
+  /*  Diseño responsivo para botones */
+  @media (max-width: 768px) {
+    .btn {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
   }
   
-  .checkbox-label {
-    display: flex; /* Usar flex para el checkbox */
-    align-items: center; /* Centrar verticalmente */
-    margin-bottom: 15px; /* Espacio debajo del checkbox */
-  }
-  
-  .form-checkbox {
-    margin-right: 10px; /* Espacio entre el checkbox y el texto */
-  }
-  
-  .submit-button {
-    background-color: #4CAF50; /* Color de fondo del botón */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    padding: 10px 15px; /* Espacio interior */
-    border-radius: 5px; /* Bordes redondeados */
-    cursor: pointer; /* Cambiar cursor al pasar sobre el botón */
-    font-size: 16px; /* Tamaño de la fuente */
-    transition: background-color 0.3s; /* Transición suave para el color de fondo */
-  }
-  
-  .submit-button:hover {
-    background-color: #45a049; /* Color del botón al pasar el cursor */
-  }
   
   /*------------------------------------------------------------------------------------------*/
-  /* Estilos para la fila de nuevo usuario */
+  /* Estilos para la fila de nuevo empleado */
   .new-empleados-row {
     background-color: #f9f9f9; /* Fondo claro para resaltar */
   }
   
-  /* Estilos para cada celda de la fila de nuevo usuario */
+  /* Estilos para cada celda de la fila de nuevo empleado */
   .new-empleados-cell {
     padding: 10px;
     text-align: center;
@@ -132,147 +311,3 @@
   .new-empleados-checkbox {
     transform: scale(1.2); /* Escala el checkbox un poco */
   }
-  
-  /* Estilos para los botones */
-  .new-empleados-save-btn,
-  .new-empleados-cancel-btn {
-    padding: 5px 10px;
-    margin: 5px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .new-empleados-save-btn {
-    background-color: #28a745; /* Verde para guardar */
-    color: #fff;
-  }
-  
-  .new-empleados-cancel-btn {
-    background-color: #dc3545; /* Rojo para cancelar */
-    color: #fff;
-  }
-  
-  .new-empleados-save-btn:hover,
-  .new-empleados-cancel-btn:hover {
-    opacity: 0.9; /* Ligera opacidad al pasar el cursor */
-  }
-  
-  
-  /* Estilos generales para los botones */
-  .new-empleados-save-btn,
-  .new-empleados-cancel-btn,
-  .new-empleados-edit-btn,
-  .new-empleados-delete-btn {
-    background-color: transparent; /* Fondo transparente */
-    border: none;                 /* Sin borde */
-    cursor: pointer;              /* Puntero de mano al pasar */
-    padding: 8px;                 /* Espaciado interno */
-    border-radius: 50%;           /* Forma circular */
-    display: flex;                /* Centra el ícono */
-    align-items: center;          /* Centra verticalmente */
-    justify-content: center;      /* Centra horizontalmente */
-    transition: background-color 0.3s; /* Animación suave */
-  }
-  
-  /* Estilos específicos del botón de guardar */
-  .new-empleados-save-btn {
-    color: #4CAF50;               /* Color verde */
-  }
-  
-  .new-empleados-save-btn:hover {
-    background-color: rgba(76, 175, 80, 0.2); /* Fondo verde claro en hover */
-  }
-  
-  /* Estilos específicos del botón de cancelar */
-  .new-empleados-cancel-btn{
-    color: #fd2515;               /* Color rojo */
-  }
-  
-  .new-empleados-cancel-btn:hover {
-    background-color: rgba(243, 23, 8, 0.053); /* Fondo rojo claro en hover */
-  }
-  
-  .new-empleados-delete-btn{
-    color: #fd2515;               /* Color rojo */
-  }
-  
-  .new-empleados-delete-btn:hover {
-    background-color: rgba(243, 23, 8, 0.053); /* Fondo rojo claro en hover */
-  }
-  
-  .new-empleados-edit-btn{
-    color: #42a9d5;
-  }
-  .new-empleados-edit-btn:hover {
-    background-color: rgba(8, 176, 243, 0.053); /* Fondo rojo claro en hover */
-  }
-  
-  /* Ajuste del tamaño del ícono */
-  .new-empleados-save-btn svg,
-  .new-empleados-cancel-btn svg,
-  .new-empleados-edit-btn svg,
-  .new-empleados-delete-btn svg {
-    width: 20px;  /* Ancho del ícono */
-    height: 20px; /* Alto del ícono */
-  }
-  
-  .button-container {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .agregar-empleado-btn {
-    background-color: #007bff; /* Azul */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px; /* Esquinas redondeadas */
-  }
-  
-  .agregar-empleado-btn:hover {
-    background-color: #0056b3; /* Un tono más oscuro en hover */
-  }
-  .card-title {
-    font-size: 24px;             /* Tamaño de la fuente */
-    font-weight: bold;           /* Texto en negrita */
-    color: #333;                 /* Color del texto */
-    border-bottom: 2px solid #007bff; /* Línea inferior de color azul */
-    padding-bottom: 8px;         /* Espacio debajo del texto */
-    margin-bottom: 16px;         /* Espacio por debajo del título */
-    font-family: Arial, sans-serif; /* Tipo de fuente */
-  }
-
-  /*Diseño para barra de filtracion*/
-.filter-input {
-  width: 100%;                     /* Ocupa todo el ancho disponible */
-  max-width: 300px;                /* Limita el ancho máximo */
-  padding: 10px 15px;              /* Espacio interno */
-  font-size: 16px;                 /* Tamaño de la fuente */
-  border: 2px solid #ccc;         /* Borde gris claro */
-  border-radius: 25px;            /* Bordes redondeados */
-  background-color: #f9f9f9;      /* Fondo gris claro */
-  color: #333;                    /* Color de texto */
-  transition: all 0.3s ease;      /* Transición suave para cambios de estado */
-}
-
-.filter-input::placeholder {
-  color: #888;                    /* Color del texto del placeholder */
-}
-
-.filter-input:focus {
-  border-color: #007bff;          /* Borde azul al hacer foco */
-  outline: none;                  /* Elimina el contorno predeterminado */
-  background-color: #fff;         /* Fondo blanco cuando está enfocado */
-}
-
-.filter-input:hover {
-  border-color: #007bff;          /* Borde azul al pasar el mouse */
-}
-
-.filter-input:disabled {
-  background-color: #e9ecef;      /* Fondo gris cuando está deshabilitado */
-  cursor: not-allowed;            /* Cursor deshabilitado */
-}
