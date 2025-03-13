@@ -1,52 +1,50 @@
 from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-from .database import get_db
-from sqlalchemy.sql import text  # Esta línea es necesaria para importar 'text'
-from .routers.Personas import personas, empleados
-from .routers.Seguridad import Usuario
-from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_sync_db, get_async_db  # ✅ Importamos las funciones correctas
+from sqlalchemy.sql import text
+from app.routers.Personas import personas, empleados
+from app.routers.Seguridad import Usuario, roles as roles_router
 from app.routers.Seguridad.Autenticacion import router as auth_routes
+from fastapi.middleware.cors import CORSMiddleware
 import sys
 import locale
-
-sys.stdout.reconfigure(encoding='utf-8')
-locale.setlocale(locale.LC_ALL, "es_ES.UTF-8") 
+import uvicorn
 
 app = FastAPI()
 
-# Registrar rutas
-app.include_router(auth_routes, prefix = "/auth")
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
-
-origins = ["http://localhost:3000"],  # URL de tu aplicación React en modo desarrollo ]
-
+# Middleware de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Cambia esto según el origen de tu aplicación frontend
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Puedes restringir métodos si es necesario
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Ruta para probar la conexión a la base de datos
+
+sys.stdout.reconfigure(encoding="utf-8")
+locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
+
+# Registrar rutas
+app.include_router(auth_routes, prefix="/auth")
+app.include_router(personas.router)
+app.include_router(empleados.router)
+app.include_router(Usuario.router)
+app.include_router(roles_router.router)
+
+@app.get("/")
+async def read_root():
+    return {"message": "Bienvenido a la API"}
+
+# Ruta de prueba de conexión (ASÍNCRONA)
 @app.get("/test-db")
-def test_db(db: Session = Depends(get_db)):
+async def test_db(db: AsyncSession = Depends(get_async_db)):  # ✅ Cambiado a get_async_db
     try:
-        # Ejecutamos una consulta simple para verificar la conexión
-        db.execute(text("SELECT 1"))
+        await db.execute(text("SELECT 1"))
         return {"message": "Conexión exitosa a la base de datos"}
     except Exception as e:
         return {"error": str(e)}
 
-# Incluir los routers en la aplicación principal
-app.include_router(personas.router)
-app.include_router(empleados.router)
-app.include_router(Usuario.router)
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Bienvenido a la API"}
-
+# Iniciar la aplicación con Uvicorn
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", host="0.0.0.0", port=5000, reload=True)

@@ -24,3 +24,6 @@ yarn-debug.log*
 yarn-error.log*
 "Backnd/firebaseServiceAccount.json" 
 "Backnd/firebaseServiceAccount.json" 
+
+# Ignorar archivos de configuración local
+.env
