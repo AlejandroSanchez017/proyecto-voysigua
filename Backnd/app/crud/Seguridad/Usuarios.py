@@ -1,96 +1,26 @@
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select, text
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
-from ...schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse
-from ...models.Seguridad.Usuarios import Usuario
-from ...models.Personas.personas import Persona
-from passlib.context import CryptContext
-from ...utils.security import create_access_token,hash_password
-from ...utils.email_utils import enviar_email
-from datetime import timedelta
-import bcrypt
+from app.schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse
+from app.models.Seguridad.Usuarios import Usuario
+from app.models.Personas.personas import Persona
+from app.utils.security import create_access_token, hash_password
+from app.utils.email_utils import enviar_email
 import pyotp
+import secrets
+import bcrypt
 
-# Crear un objeto para el hashing de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Obtener todas los usuarios
+async def obtener_todos_los_usuarios(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Usuario).offset(skip).limit(limit))
+    return result.scalars().all()
 
-# **Actualizar usuario**
-def update_user(db: Session, id: int, user_data: dict):
-    user = db.query(Usuario).filter(Usuario.id == id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-    # Variable para saber si se debe generar un nuevo token
-    new_token = None  
-
-    #  Encriptar la nueva contraseña solo si se proporciona
-    if "password" in user_data and user_data["password"]:
-        user_data["password"] = hash_password(user_data["password"])
-        new_token = create_access_token(data={"sub": user.username})  # Generar token si cambia la contraseña
-
-    #  Generar un nuevo token si el username cambia
-    if "username" in user_data and user.username != user_data["username"]:
-        new_token = create_access_token(data={"sub": user_data["username"]})
-
-    #  Si se generó un nuevo token, actualizarlo en la base de datos
-    if new_token:
-        user_data["remember_token"] = new_token  #  Aquí se debe extraer solo el `access_token`
-        if isinstance(new_token, dict):  # Si `create_access_token` devuelve un diccionario
-            user_data["remember_token"] = new_token.get("access_token")  # Extraer solo el token
-
-    #  Actualizar solo los campos enviados
-    update_data = {k: v for k, v in user_data.items() if v is not None}
-    db.query(Usuario).filter(Usuario.id == id).update(update_data)
-    
-    db.commit()
-    db.refresh(user)  #  Sincronizar con la BD
-
-    return {"message": "Usuario actualizado correctamente", "new_token": user_data.get("remember_token")}
-
-# **Eliminar usuario**
-def eliminar_usuario(db: Session, id: int):
-    try:
-        db_usuario = db.query(Usuario).filter(Usuario.id == id).first()
-        if db_usuario is None:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-        db.delete(db_usuario)
-        db.commit()
-        return db_usuario
-    except SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(status_code=400, detail=f"Error al eliminar usuario: {str(e)}")
-
-# **Obtener usuario por ID**
-def obtener_todos_los_usuarios_por_id(db: Session, id: int):
-    usuario = db.query(Usuario).filter(Usuario.id == id).first()
-    
-    # 🔍 Agregar un print para ver si el usuario se encuentra
-    print("Usuario encontrado en la base de datos:", usuario)
-
-    if not usuario:
-        return None  
-    
-    return UsuarioResponse( 
-        id=usuario.id,
-        cod_persona=usuario.cod_persona,
-        nombre=usuario.nombre,
-        remember_token=usuario.remember_token,
-        username=usuario.username,
-        estado=usuario.estado,
-        primera_vez=usuario.primera_vez,
-        fecha_vencimiento=usuario.fecha_vencimiento,
-    )
-
-# **Obtener todos los usuarios**
-def obtener_todos_los_usuarios(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Usuario).offset(skip).limit(limit).all()
-
-# **Insertar un nuevo usuario (encriptando la contraseña)**
-def create_user(db: Session, user_data: UsuarioCreate):
+async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     # Verificar si el usuario ya existe
-    existing_user = db.query(Usuario).filter(Usuario.username == user_data.username).first()
+    result = await db.execute(select(Usuario).filter(Usuario.username == user_data.username))
+    existing_user = result.scalars().first()
+
     if existing_user:
         raise HTTPException(status_code=400, detail="El usuario ya existe")
 
@@ -98,115 +28,150 @@ def create_user(db: Session, user_data: UsuarioCreate):
     hashed_password = hash_password(user_data.password)
     user_data.password = hashed_password
 
-    #  Generar un secreto OTP para el usuario
+    # Generar un secreto OTP para el usuario
     otp_secret = pyotp.random_base32()
 
     # Crear la instancia del usuario en la BD con el otp_secret
-    new_user = Usuario(
-        **user_data.dict(),
-        otp_secret=otp_secret  # Asignar la clave OTP generada
-    )
+    new_user = Usuario(**user_data.dict(), otp_secret=otp_secret)
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)  # Refrescar para obtener datos actualizados de la BD
+    await db.commit()
+    await db.refresh(new_user)  # Obtener los datos actualizados desde la BD
 
-    # Retornar el usuario sin exponer la contraseña
-    return UsuarioResponse(
-        id=new_user.id,
-        cod_persona=new_user.cod_persona,
-        nombre=new_user.nombre,
-        remember_token=new_user.remember_token,
-        username=new_user.username,
-        estado=new_user.estado,
-        primera_vez=new_user.primera_vez,
-        fecha_vencimiento=new_user.fecha_vencimiento,
-        otp_secret=new_user.otp_secret  #  Agregar el OTP Secret en la respuesta
-    )
+    # 🔹 Conversión explícita a UsuarioResponse antes de devolverlo
+    return UsuarioResponse.model_validate(new_user.__dict__)
 
 
+# Obtener usuario por ID (asíncrono)
+async def obtener_usuario_por_id(db: AsyncSession, id: int):
+    usuario = await db.get(Usuario, id)
+    return usuario if usuario else None
 
-def obtener_email_por_usuario(db: Session, username: str):
-    return db.query(Usuario).filter(Usuario.username == username).first()
 
-def autenticar_usuario(db: Session, username: str, password: str):
-    user = obtener_email_por_usuario(db, username)
-    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+# ✅ Actualizar usuario (asíncrono) con procedimiento almacenado
+async def actualizar_usuario(db: AsyncSession, id: int, user_data: dict):
+    user = await db.get(Usuario, id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    new_token = None  # Variable para guardar el nuevo token si cambia `password` o `username`
+
+    # 🔹 Si se proporciona una nueva contraseña, la encriptamos y generamos un nuevo token
+    if "password" in user_data and user_data["password"]:
+        user_data["password"] = hash_password(user_data["password"])
+        new_token = create_access_token(data={"sub": user.username})  
+
+    # 🔹 Si el username cambia, generamos un nuevo token
+    if "username" in user_data and user.username != user_data["username"]:
+        new_token = create_access_token(data={"sub": user_data["username"]})
+
+    # 🔹 Si hay un nuevo token, lo guardamos en user_data para enviarlo a PostgreSQL
+    if new_token:
+        user_data["remember_token"] = new_token if isinstance(new_token, str) else new_token.get("access_token")
+
+    # 🔹 Llamar al procedimiento almacenado en PostgreSQL
+    stmt = text("""
+        CALL actualizar_usuario(
+            :id, :nombre, :password, :username, :estado, :remember_token
+        )
+    """)
+
+    await db.execute(stmt, {
+        "id": id,
+        "nombre": user_data.get("nombre"),
+        "password": user_data.get("password"),
+        "username": user_data.get("username"),
+        "estado": user_data.get("estado"),
+        "remember_token": user_data.get("remember_token")  # Ahora lo enviamos al procedimiento
+    })
+
+    await db.commit()
+    return {
+        "message": "Usuario actualizado correctamente",
+        "new_token": user_data.get("remember_token") if new_token else "No se generó un nuevo token"
+    }
+
+
+# Eliminar usuario (asíncrono)
+async def eliminar_usuario(db: AsyncSession, id: int):
+    async with db.begin():
+        db_usuario = await db.get(Usuario, id)
+        if not db_usuario:
+            return None
+        await db.delete(db_usuario)
+        await db.commit()
+        return db_usuario
+
+
+
+#----------------------------------------------------------------------------------------------------------------
+
+# Obtener usuario por username (asíncrono)
+async def obtener_email_por_usuario(db: AsyncSession, username: str):
+    result = await db.execute(select(Usuario).filter(Usuario.username == username))
+    return result.scalars().first()
+
+# Autenticar usuario (asíncrono)
+async def autenticar_usuario(db: AsyncSession, username: str, password: str):
+    user = await obtener_email_por_usuario(db, username)
+
+    if not user or not user.password:
+        return None
+
+    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+        # Genera y guarda remember_token aquí mismo
+        remember_token = secrets.token_hex(32)
+        user.remember_token = remember_token
+
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+
         return user
+
     return None
 
 
-# Función para generar OTP y enviarlo por email
-def generar_otp(db: Session, username: str):
-    # 🔹 Buscar al usuario en la tabla `Usuarios`
-    user = db.query(Usuario).filter(Usuario.username == username).first()
+# Generar OTP y enviarlo por email (asíncrono)
+async def generar_otp(db: AsyncSession, username: str):
+    user = await obtener_email_por_usuario(db, username)  # Cambio de función
 
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    # 🔹 Buscar a la persona en `TBL_PERSONAS` usando `cod_persona`
-    persona = db.query(Persona).filter(Persona.cod_persona == user.cod_persona).first()
+    persona = await db.get(Persona, user.cod_persona)
 
-    if not persona:
-        raise HTTPException(status_code=400, detail="No se encontró la persona asociada al usuario")
-
-    if not persona.correo:
+    if not persona or not persona.correo:
         raise HTTPException(status_code=400, detail="No se encontró el correo electrónico del usuario")
 
-    # 🔹 Limpiar y validar el email antes de usarlo
-    email = str(persona.correo).strip().lower()  # Convertir a string, quitar espacios
+    email = persona.correo
 
-    import re
-    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(email_regex, email):
-        print(f"[DEBUG] Email inválido detectado: {email}")  # Log de depuración
-        raise HTTPException(status_code=400, detail=f"El email obtenido no es válido: {email}")
-
-    # 🔹 Verificar si el usuario tiene OTP activado
-    if not user.otp_secret:
-        raise HTTPException(status_code=400, detail="Usuario no tiene 2FA activado")
-    
-    # Evita regenerar la clave secreta antes de validar el OTP
+    # Si ya tiene un OTP secreto, reutilizarlo
     if not user.otp_secret:
         user.otp_secret = pyotp.random_base32()
-        db.commit()
+        await db.commit()
 
-    # 🔹 Generar código OTP
     totp = pyotp.TOTP(user.otp_secret, interval=120)
     otp_code = totp.now()
 
-    print(f"[DEBUG] Enviando OTP a: {email}")  # Depuración
-
-    # 🔹 Enviar código OTP por correo
     success = enviar_email(email, otp_code)
 
     if success:
         return {"message": "Código OTP enviado correctamente"}
-    else:
-        raise HTTPException(status_code=500, detail="Error al enviar el correo")
+
+    raise HTTPException(status_code=500, detail="Error al enviar el correo")
 
 
-
-
-
-
-
-
-def verificar_otp(db: Session, username: str, user_otp: str):
-    user = obtener_email_por_usuario(db, username)
+# Verificar OTP (asíncrono)
+async def verificar_otp(db: AsyncSession, username: str, user_otp: str):
+    user = await obtener_email_por_usuario(db, username)  # Cambio de función
 
     if not user or not user.otp_secret:
         raise HTTPException(status_code=404, detail="Usuario no tiene 2FA activado")
 
     totp = pyotp.TOTP(user.otp_secret, interval=120)
-   
-
-    # Agregar depuración para ver qué OTP se generó
-    expected_otp = totp.now()
-    print(f" [DEBUG] OTP ingresado: {user_otp}, OTP esperado: {expected_otp}")
 
     if not totp.verify(user_otp):
         raise HTTPException(status_code=401, detail="Código OTP inválido")
 
     return {"message": "OTP válido, autenticación completada"}
-

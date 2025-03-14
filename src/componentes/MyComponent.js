@@ -45,7 +45,7 @@ const MyComponent = () => {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await fetch("http://localhost:8000/usuarios");
+        const response = await fetch("http://localhost:8000/usuarios/");
         const data = await response.json();
         setUsuarios(data);
       } catch (error) {

@@ -25,7 +25,7 @@ function App() {
               <img
                 src="dist/img/logo.png"
                 className="img-circle elevation-2"
-                alt="User Image"
+                alt="logo"
               />
             </div>
             <div className="info">

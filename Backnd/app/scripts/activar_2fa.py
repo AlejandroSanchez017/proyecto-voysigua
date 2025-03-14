@@ -1,15 +1,17 @@
 import sys
 import os
 import pyotp
-from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.database import async_session_maker
 from app.models.Seguridad.Usuarios import Usuario
 
 # Agregar la carpeta raíz del proyecto al `sys.path`
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-def activar_2fa(db: Session, username: str):
-    user = db.query(Usuario).filter(Usuario.username == username).first()
+async def activar_2fa(db: AsyncSession, username: str):
+    result = await db.execute(select(Usuario).filter(Usuario.username == username))
+    user = result.scalars().first()
 
     if not user:
         print("❌ Usuario no encontrado")
@@ -21,13 +23,16 @@ def activar_2fa(db: Session, username: str):
 
     # 🔥 Generar un nuevo `otp_secret`
     user.otp_secret = pyotp.random_base32()
-    
-    db.commit()
-    db.refresh(user)
+
+    await db.commit()
+    await db.refresh(user)
     print(f"✅ 2FA activado para {username}, Secreto OTP: {user.otp_secret}")
 
+async def main():
+    async with async_session_maker() as db:
+        username = input("Ingrese el username del usuario para activar 2FA: ")
+        await activar_2fa(db, username)
+
 if __name__ == "__main__":
-    db = SessionLocal()
-    username = input("Ingrese el username del usuario para activar 2FA: ")
-    activar_2fa(db, username)
-    db.close()
+    import asyncio
+    asyncio.run(main())

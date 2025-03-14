@@ -1,144 +1,107 @@
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from ...models.Seguridad.Usuarios import Usuario
-from ...crud.Seguridad.Usuarios import (
-    obtener_email_por_usuario, verificar_otp, autenticar_usuario, generar_otp, create_user, update_user, eliminar_usuario, obtener_todos_los_usuarios_por_id, obtener_todos_los_usuarios as crud_obtener_todos_los_usuarios)
-from ...schemas.Seguridad.Usuarios import UsuarioResponse, UsuarioCreate, UsuarioUpdate, LoginSchema, OTPVerifySchema
-from ...utils.security import  create_access_token, get_current_user
-from ...utils.email_utils import enviar_email
-from ...database import get_db
-from typing import List 
+from sqlalchemy.sql import select
+from app.database import get_async_db, get_sync_db
+from app.crud.Seguridad.Usuarios import (obtener_todos_los_usuarios, insertar_usuario, actualizar_usuario, eliminar_usuario,autenticar_usuario,generar_otp,verificar_otp,
+    obtener_usuario_por_id, 
+)
+from app.schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse, LoginSchema, OTPVerifySchema, UsuarioAuthResponse
+from app.models.Seguridad.Usuarios import Usuario
+from app.utils.security import create_access_token
+from app.utils.email_utils import enviar_email
+from typing import List
+import logging
 
-# Crear una instancia de CryptContext para manejar la encriptación de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configurar logging
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-#  Endpoint para actualizar un usuario existente
-@router.put("/usuarios/{id}")
-def modificar_usuario(id: int, usuario: UsuarioUpdate, db: Session = Depends(get_db)):
+# ✅ Ruta para obtener todas las personas (SÍNCRONA)
+@router.get("/usuarios/", response_model=List[UsuarioAuthResponse])
+async def obtener_todos_los_usuarios(db: AsyncSession = Depends(get_async_db)):
+    result = await db.execute(select(Usuario))  # ✅ Obtiene `remember_token`
+    usuarios = result.scalars().all()
+
+    return [UsuarioAuthResponse.model_validate(user.__dict__) for user in usuarios]
+
+
+# ✅ Endpoint para insertar un nuevo usuario (ASÍNCRONO)
+@router.post("/usuarios/", response_model=UsuarioResponse)
+async def crear_usuario(usuario: UsuarioCreate, db: AsyncSession = Depends(get_async_db)):
     try:
-        usuario_dict = usuario.dict(exclude_unset=True)
-        response = update_user(db, id, usuario_dict)
+        usuario_creado = await insertar_usuario(db, usuario)
+        return usuario_creado  # ✅ Devuelve `UsuarioResponse`
+    except Exception as e:
+        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
+        logger.error(f"Error al insertar usuario: {error_message}")
+        raise HTTPException(status_code=400, detail=error_message)
+
+
+
+# ✅ Endpoint para actualizar un usuario (ASÍNCRONO)
+@router.put("/usuarios/{id}", response_model=dict)
+async def modificar_usuario(id: int, usuario: UsuarioUpdate, db: AsyncSession = Depends(get_async_db)):
+    try:
+        response = await actualizar_usuario(db, id, usuario.dict(exclude_unset=True))  # Solo enviar valores proporcionados
         return response
     except Exception as e:
-        import traceback
-        error_message = traceback.format_exc()  # 🔍 Captura el error completo
-        raise HTTPException(status_code=400, detail=str(error_message))
-
-#  Endpoint para eliminar un usuario
-@router.delete("/usuarios/{id}")
-def borrar_usuario(id: int, db: Session = Depends(get_db)):
-    try:
-        usuario_eliminado = eliminar_usuario(db, id)
-        if usuario_eliminado is None:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
-        return {"message": "Usuario eliminado correctamente"}
-    except Exception as e:
+        logger.error(f"Error al actualizar usuario {id}: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
-# Ruta para obtener un usuario por ID
-@router.get("/usuarios/{id}", response_model=UsuarioResponse)
-def obtener_usuario(id: int, db: Session = Depends(get_db)):
-    usuario = obtener_todos_los_usuarios_por_id(db, id)
+
+# ✅ Endpoint para eliminar un usuario (ASÍNCRONO)
+@router.delete("/usuarios/{id}", response_model=dict)
+async def borrar_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
+    usuario_eliminado = await eliminar_usuario(db, id)
+    if usuario_eliminado is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
+    return {"message": f"Usuario con ID {id} eliminado correctamente"}
+
+
+# ✅ Endpoint para obtener un usuario por ID (ASÍNCRONO)
+@router.get("/usuarios/{id}", response_model=UsuarioResponse)
+async def obtener_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
+    usuario = await obtener_usuario_por_id(db, id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return UsuarioResponse.model_validate(usuario)
 
-    return UsuarioResponse(  
-        id=usuario.id,
-        cod_persona=usuario.cod_persona,
-        nombre=usuario.nombre,
-        remember_token=usuario.remember_token,
-        username=usuario.username,
-        preguntas_contestadas=usuario.preguntas_contestadas,
-        estado=usuario.estado,
-        primera_vez=usuario.primera_vez,
-        fecha_vencimiento=usuario.fecha_vencimiento,
-        intentos_preguntas=usuario.intentos_preguntas,
-        preguntas_correctas=usuario.preguntas_correctas
-    )
-
-
-
-#  Ruta para obtener todos los usuarios
-@router.get("/usuarios", response_model=List[UsuarioResponse])  
-def obtener_todos_los_usuarios(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    usuarios = db.query(Usuario).offset(skip).limit(limit).all()
-    return usuarios 
-
-# Endpoint para iniciar sesión y obtener un token de acceso
+# ✅ Endpoint para iniciar sesión y obtener un token de acceso (ASÍNCRONO)
 @router.post("/login")
-def login(login: LoginSchema, db: Session = Depends(get_db)):
-    user = autenticar_usuario(db, login.username, login.password)
-    
+async def login(login: LoginSchema, db: AsyncSession = Depends(get_async_db)):
+    user = await autenticar_usuario(db, login.username, login.password)
+
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
 
-    # Obtener email del usuario
-    email = obtener_email_por_usuario(db, login.username)
-    if not email:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el correo del usuario")
-    
-    # Generar código OTP
-    otp_code = generar_otp(db, login.username)
-    if not otp_code:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo generar el código OTP")
-    
-    # Enviar código OTP por email
-    enviar_email(email, otp_code)
-    
-    return {"message": "Se ha enviado un código OTP a tu correo electrónico. Ingrese el código para completar el login."}
+    # Generar código OTP y actualizar en la base de datos
+    otp_response = await generar_otp(db, login.username)
+    # Generar token JWT (si lo deseas)
+    access_token = create_access_token({"sub": user.username})
 
+    return {
+        "message": "Se ha enviado un código OTP a tu correo electrónico. Ingrese el código para completar el login.",
+        "otp_expires_in": 120  # Opcional: Indica el tiempo de validez del OTP
+    }
+
+# ✅ Endpoint para verificar OTP (ASÍNCRONO)
 @router.post("/verify-otp")
-def verify_otp(data: OTPVerifySchema, db: Session = Depends(get_db)):
-    # Buscar el usuario en la base de datos
-    user = db.query(Usuario).filter(Usuario.username == data.username).first()
-    
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_async_db)):
+    otp_valid = await verificar_otp(db, data.username, data.otp_code)
 
-    # Verificar si el OTP es correcto
-    if not verificar_otp(db, data.username, data.otp_code):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Código OTP inválido")
+    if not otp_valid:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Código OTP inválido o expirado")
 
-    # Generar el token JWT
+    # Generar token JWT después de verificar el OTP
     access_token = create_access_token(data={"sub": data.username})
-
-    # ❌ ERROR: Estás guardando un diccionario en `remember_token`
-    # user.remember_token = {"access_token": access_token, "token_type": "bearer", "expires_in": str(datetime.utcnow())}
-
-    # ✅ SOLUCIÓN: Guarda solo el string del token
-    user.remember_token = str(access_token)  # Guarda solo el token como un string
-    db.commit()
 
     return {
         "message": "✅ Autenticación exitosa",
         "access_token": access_token,
         "token_type": "bearer"
     }
-
-
-
-#  Ruta protegida (requiere autenticación)
-@router.get("/usuarios/protected", response_model=UsuarioResponse)
-def protected_route(current_user: UsuarioResponse = Depends(get_current_user)):
-    return current_user
-
-# Crear un nuevo usuario con contraseña cifrada y token
-@router.post("/usuarios/")
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
-    try:
-        # Intenta crear el usuario directamente con SQLAlchemy
-        new_user = create_user(db, usuario)
-
-        # Generar el token de acceso para el usuario recién creado
-        access_token = create_access_token(data={"sub": new_user.username})
-
-        return {"message": "Usuario insertado correctamente", "access_token": access_token}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-

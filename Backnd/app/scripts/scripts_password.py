@@ -1,71 +1,69 @@
-import psycopg2
+import asyncpg
+import os
 from passlib.context import CryptContext
+from dotenv import load_dotenv
 from fastapi import HTTPException
+import asyncio
 
-# Configuración para conectar a PostgreSQL
+# 📌 Cargar variables de entorno desde el archivo .env
+load_dotenv()
+
+# 🔧 Configuración segura de la base de datos usando variables de entorno
 DB_CONFIG = {
-    'dbname': 'VoySigua',
-    'user': 'postgres',
-    'password': '1234',
-    'host': 'localhost',
-    'port': 5432  # Puerto por defecto de PostgreSQL
+    'database': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST'),
+    'port': int(os.getenv('DB_PORT', 5432))  # Asegura que el puerto sea un número entero
 }
 
-# Inicializar Passlib para usar bcrypt
+# 🔑 Inicializar Passlib para usar bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Conectar a la base de datos
-try:
-    conn = psycopg2.connect(**DB_CONFIG)
-    cursor = conn.cursor()
-
-    # Obtener todas las contraseñas en texto plano (Asegúrate de que esto aplica en tu caso)
-    cursor.execute("SELECT id, password FROM users;")  # Cambia 'usuario' por el nombre de tu tabla
-    users = cursor.fetchall()
-
-    for user_id, plain_password in users:
-        if not plain_password.startswith("$2b$"):  # Si ya está encriptada, la ignoramos
-            hashed_password = pwd_context.hash(plain_password)
-
-            # Actualizar la contraseña en la base de datos
-            cursor.execute("UPDATE users SET password = %s WHERE id = %s;", (hashed_password, user_id))
-            print(f"Contraseña del usuario {user_id} actualizada.")
-
-    # Confirmar los cambios
-    conn.commit()
-    print("Todas las contraseñas han sido encriptadas correctamente.")
-
-except Exception as e:
-    print(" Error al conectar o actualizar la base de datos:", e)
-
-finally:
-    if conn:
-        cursor.close()
-        conn.close()
-# Función para iniciar sesión
-def login_user(username: str, password: str):
+# 🔄 Función asíncrona para actualizar contraseñas en la base de datos
+async def actualizar_contrasenas():
+    """Actualiza las contraseñas en la base de datos si no están encriptadas"""
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+        conn = await asyncpg.connect(**DB_CONFIG)
+        async with conn.transaction():
+            # Obtener todas las contraseñas
+            users = await conn.fetch("SELECT id, password FROM users;")
 
-        # Obtener el usuario y la contraseña encriptada de la base de datos
-        cursor.execute("SELECT password FROM usuario WHERE username = %s;", (username,))
-        result = cursor.fetchone()
+            for user in users:
+                user_id, plain_password = user["id"], user["password"]
+                
+                if not plain_password.startswith("$2b$"):  # Si no está encriptada
+                    hashed_password = pwd_context.hash(plain_password)
+                    await conn.execute("UPDATE users SET password = $1 WHERE id = $2;", hashed_password, user_id)
+                    print(f"🔑 Contraseña del usuario {user_id} actualizada.")
 
-        if result:
-            hashed_password = result[0]
-
-            # Verificar si la contraseña ingresada coincide con la almacenada
-            if pwd_context.verify(password, hashed_password):
-                print("inicio de sesión exitoso.")
-            else:
-                raise HTTPException(status_code=400, detail="Contraseña incorrecta.")
-        else:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado.")
+        await conn.close()
+        print("✅ Todas las contraseñas han sido encriptadas correctamente.")
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al iniciar sesión: {e}")
+        print(f"⚠️ Error al conectar o actualizar la base de datos: {e}")
 
-    finally:
-        cursor.close()
-        conn.close()
+# 🔐 Función asíncrona para iniciar sesión
+async def login_user(username: str, password: str):
+    """Verifica credenciales y autentica al usuario"""
+    try:
+        conn = await asyncpg.connect(**DB_CONFIG)
+        result = await conn.fetchrow("SELECT password FROM users WHERE username = $1;", username)
+
+        if result:
+            hashed_password = result["password"]
+            if pwd_context.verify(password, hashed_password):
+                print("✅ Inicio de sesión exitoso.")
+            else:
+                raise HTTPException(status_code=400, detail="❌ Contraseña incorrecta.")
+        else:
+            raise HTTPException(status_code=404, detail="❌ Usuario no encontrado.")
+
+        await conn.close()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"⚠️ Error al iniciar sesión: {e}")
+
+# 📌 Ejecutar la actualización de contraseñas si el script se ejecuta directamente
+if __name__ == "__main__":
+    asyncio.run(actualizar_contrasenas())
