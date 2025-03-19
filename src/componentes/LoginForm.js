@@ -12,6 +12,7 @@ const LoginForm = ({ onLogin }) => {
   const [message, setMessage] = useState("");
   const [step, setStep] = useState(1); // Controla si está en login o OTP
   const [tempToken, setTempToken] = useState(""); // Guarda el token antes de OTP
+  const [resendDisabled, setResendDisabled] = useState(true);
 
   const navigate = useNavigate();
 
@@ -23,9 +24,7 @@ const LoginForm = ({ onLogin }) => {
     try {
       const response = await fetch("http://localhost:8000/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
@@ -37,10 +36,13 @@ const LoginForm = ({ onLogin }) => {
         throw new Error(data.detail || "Error en el inicio de sesión");
       }
 
-      // Guardamos el token temporal y pasamos al paso 2 (OTP)
       setTempToken(data.temp_token);
       setStep(2);
       setMessage("Se ha enviado un código OTP a tu correo.");
+
+      // Deshabilita el botón y lo habilita después de 30 segundos
+      setResendDisabled(true);
+      setTimeout(() => setResendDisabled(false), 30000);
     } catch (error) {
       setError(error.message);
     }
@@ -52,33 +54,57 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-        const response = await fetch("http://localhost:8000/verify-otp", {
+      const response = await fetch("http://localhost:8000/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, otp_code: otp, temp_token: tempToken }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Error en la verificación del OTP");
+      }
+
+      setMessage("Autenticación exitosa");
+      sessionStorage.setItem("token", data.access_token);
+      onLogin(true);
+      navigate('/home'); 
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError("");
+    setMessage("");
+
+    try {
+        const response = await fetch("http://localhost:8000/resend-otp", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/json",  // ✅ Debe ser JSON
             },
             body: JSON.stringify({ 
-                username: username, 
-                otp_code: otp,  // Usa "otp_code" en lugar de "otp"
-                temp_token: tempToken 
+                username: username,  
+                temp_token: tempToken  
             }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.detail || "Error en la verificación del OTP");
+            throw new Error(data.detail || "No se pudo reenviar el OTP");
         }
 
-        setMessage("Autenticación exitosa");
-        sessionStorage.setItem("token", data.access_token);
-        onLogin(true);
-        navigate('/home'); 
+        setMessage("Se ha enviado un nuevo código OTP a tu correo.");
+        
+        setResendDisabled(true);
+        setTimeout(() => setResendDisabled(false), 30000);
     } catch (error) {
         setError(error.message);
     }
 };
-
 
   return (
     <div className="login-content-wrapper">
@@ -150,6 +176,7 @@ const LoginForm = ({ onLogin }) => {
             </div>
 
             <button type="submit">Verificar OTP</button>
+            <button type="button" onClick={handleResendOtp} disabled={resendDisabled}> Reenviar código OTP</button>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
             {message && <p style={{ color: "green" }}>{message}</p>}
