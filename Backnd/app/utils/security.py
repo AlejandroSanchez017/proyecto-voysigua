@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
-
 from ..models.Seguridad.Usuarios import Usuario
 from ..schemas.Seguridad.Usuarios import LoginSchema
+
 from app.database import get_sync_db, get_async_db
 
 # Cargar variables de entorno desde .env
@@ -84,5 +84,4 @@ async def get_current_user(db: AsyncSession = Depends(get_sync_db), token: str =
 
     except JWTError:
         raise credentials_exception
-
     return user

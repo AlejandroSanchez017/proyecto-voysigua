@@ -44,6 +44,7 @@ class UsuarioAuthResponse(UsuarioBase):
 
 
 # Esquema para login
+
 class LoginSchema(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, description="Nombre de usuario")
     password: str = Field(..., min_length=6, max_length=100, description="Contraseña del usuario")
@@ -52,3 +53,7 @@ class LoginSchema(BaseModel):
 class OTPVerifySchema(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, description="Nombre de usuario")
     otp_code: str = Field(..., min_length=6, max_length=6, description="Código OTP de 6 dígitos")
+
+class ResendOTPRequest(BaseModel):
+    username: Optional[str] = None
+    temp_token: Optional[str] = None

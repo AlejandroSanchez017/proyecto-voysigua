@@ -17,6 +17,8 @@ logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # ✅ Endpoint para insertar una nueva persona (ASÍNCRONO)

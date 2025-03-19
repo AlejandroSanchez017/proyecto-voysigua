@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_sync_db, get_async_db  # ✅ Importamos las funciones correctas
+from app.database import get_async_db  # ✅ Importamos las funciones correctas
 from sqlalchemy.sql import text
 from app.routers.Personas import personas, empleados
 from app.routers.Seguridad import Usuario
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers.Seguridad.Autenticacion import router as auth_routes
+from fastapi.middleware.cors import CORSMiddleware
 import sys
 import locale
 import uvicorn
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 logging.basicConfig(level=logging.DEBUG)
 

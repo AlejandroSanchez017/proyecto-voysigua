@@ -5,14 +5,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from app.database import get_async_db, get_sync_db
 from app.crud.Seguridad.Usuarios import (obtener_todos_los_usuarios, insertar_usuario, actualizar_usuario, eliminar_usuario,autenticar_usuario,generar_otp,verificar_otp,
-    obtener_usuario_por_id, 
+    obtener_usuario_por_id, obtener_email_por_usuario
 )
-from app.schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse, LoginSchema, OTPVerifySchema, UsuarioAuthResponse
+from app.schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse, LoginSchema, OTPVerifySchema, UsuarioAuthResponse, ResendOTPRequest
 from app.models.Seguridad.Usuarios import Usuario
+from app.models.Personas.personas import Persona
 from app.utils.security import create_access_token
 from app.utils.email_utils import enviar_email
 from typing import List
 import logging
+import pyotp
 
 # Configurar logging
 logging.basicConfig(level=logging.ERROR)
@@ -74,11 +76,12 @@ async def obtener_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
 # ✅ Endpoint para iniciar sesión y obtener un token de acceso (ASÍNCRONO)
 @router.post("/login")
 async def login(login: LoginSchema, db: AsyncSession = Depends(get_async_db)):
+
     user = await autenticar_usuario(db, login.username, login.password)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
-
+    
     # Generar código OTP y actualizar en la base de datos
     otp_response = await generar_otp(db, login.username)
     # Generar token JWT (si lo deseas)
@@ -105,3 +108,35 @@ async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_async
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+@router.post("/resend-otp")
+async def resend_otp(data: ResendOTPRequest, db: AsyncSession = Depends(get_async_db)):
+    user = await obtener_email_por_usuario(db, data.username)  # ✅ Reutilizamos la misma función
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # 🔹 Obtener el correo de la tabla `personas`
+    persona = await db.get(Persona, user.cod_persona)
+
+    if not persona or not persona.correo:
+        raise HTTPException(status_code=400, detail="No se encontró el correo electrónico del usuario")
+
+    email = persona.correo
+
+    # 🔹 Si el usuario no tiene un OTP secreto, generarlo y guardarlo
+    if not user.otp_secret:
+        user.otp_secret = pyotp.random_base32()
+        await db.commit()
+
+    # 🔹 Generar código OTP con el secreto del usuario
+    totp = pyotp.TOTP(user.otp_secret, interval=120)
+    otp_code = totp.now()
+
+    # 🔹 Enviar OTP por correo
+    success = enviar_email(email, otp_code)
+
+    if success:
+        return {"message": "Código OTP enviado correctamente"}
+    
+    raise HTTPException(status_code=500, detail="Error al enviar el correo")

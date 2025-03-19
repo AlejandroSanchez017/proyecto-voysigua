@@ -11,21 +11,21 @@ import pyotp
 import secrets
 import bcrypt
 
+
 # Obtener todas los usuarios
 async def obtener_todos_los_usuarios(db: AsyncSession, skip: int = 0, limit: int = 10):
     result = await db.execute(select(Usuario).offset(skip).limit(limit))
     return result.scalars().all()
+
 
 async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     # Verificar si el usuario ya existe
     result = await db.execute(select(Usuario).filter(Usuario.username == user_data.username))
     existing_user = result.scalars().first()
 
-    if existing_user:
-        raise HTTPException(status_code=400, detail="El usuario ya existe")
+    # Generar el hash de la contraseña antes de asignarlo
+    hashed_password = hash_password(user_data.password)  # ✅ Se asegura de que siempre tenga un valor
 
-    # Hashear la contraseña antes de guardarla
-    hashed_password = hash_password(user_data.password)
     user_data.password = hashed_password
 
     # Generar un secreto OTP para el usuario
@@ -40,6 +40,7 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
 
     # 🔹 Conversión explícita a UsuarioResponse antes de devolverlo
     return UsuarioResponse.model_validate(new_user.__dict__)
+
 
 
 # Obtener usuario por ID (asíncrono)
@@ -155,10 +156,9 @@ async def generar_otp(db: AsyncSession, username: str):
     otp_code = totp.now()
 
     success = enviar_email(email, otp_code)
-
+    
     if success:
         return {"message": "Código OTP enviado correctamente"}
-
     raise HTTPException(status_code=500, detail="Error al enviar el correo")
 
 
@@ -173,5 +173,5 @@ async def verificar_otp(db: AsyncSession, username: str, user_otp: str):
 
     if not totp.verify(user_otp):
         raise HTTPException(status_code=401, detail="Código OTP inválido")
-
+    
     return {"message": "OTP válido, autenticación completada"}

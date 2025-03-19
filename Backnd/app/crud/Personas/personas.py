@@ -1,3 +1,4 @@
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text, select
 from app.schemas.Personas.personas import PersonaCreate, PersonaUpdate, TipoPersonaCreate
@@ -16,8 +17,16 @@ async def insertar_persona(db: AsyncSession, persona: PersonaCreate):
 # Actualizar persona
 async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: PersonaUpdate):
     query = text("""
-        CALL actualizar_persona(:cod_persona, :cod_tipo_persona, :primer_nombre, :apellido,
-                                :fecha_nacimiento, :sexo, :correo, :estado)
+        CALL actualizar_persona(
+            :cod_persona,
+            :cod_tipo_persona,
+            :primer_nombre,
+            :apellido,
+            :fecha_nacimiento,
+            :sexo,
+            :correo,
+            :estado
+        )
     """)
     async with db.begin():
         await db.execute(query, {"cod_persona": cod_persona, **persona.model_dump(exclude_unset=True)})

@@ -26,4 +26,3 @@ class Persona(Base):
 
     # Relación con TipoPersona
     tipo_persona_rel = relationship("TipoPersona", back_populates="personas")
-
