@@ -5,17 +5,12 @@ from sqlalchemy.sql import select
 from app.database import get_async_db, get_sync_db
 from app.crud.Personas.personas import (
     insertar_persona, actualizar_persona, eliminar_persona,
-    obtener_persona_por_id, insertar_tipo_persona, eliminar_tipo_persona, obtener_tipos_persona
+    obtener_persona_por_id, insertar_tipo_persona, eliminar_tipo_persona
 )
-from app.models.Personas.personas import Persona as PersonaModel
-from app.models.Personas.personas import TipoPersona as TipoPersonaModel
+from app.models.Personas.personas import Persona as PersonaModel, TipoPersona as TipoPersonaModel
 from app.schemas.Personas.personas import PersonaCreate, PersonaUpdate, PersonaResponse, TipoPersonaCreate, TipoPersona
 from typing import List
 import logging
-
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
-
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)

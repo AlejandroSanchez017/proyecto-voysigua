@@ -193,34 +193,6 @@
     min-width: 120px;  /* Tamaño uniforme */
     height: 45px; /* Altura fija para todos */
   }
-  .new-empleados-despedir-btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 124px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-}
-.new-empleados-despedir-btn {
-  background-color: #D94E41;
-  color: white;
-  border-color: #B03A2E;}
-
-.new-empleados-despedir-btn:hover {
-    background-color: #e64a19;
-    border-color: #bf360c;
-    transform: scale(1.05);
-}
   
   /* Botón de Editar */
   .new-empleados-edit-btn {

@@ -1,20 +1,14 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_async_db  # ✅ Importamos las funciones correctas
+from app.database import get_sync_db, get_async_db  # ✅ Importamos las funciones correctas
 from sqlalchemy.sql import text
 from app.routers.Personas import personas, empleados
 from app.routers.Seguridad import Usuario, roles as roles_router, permisos as permisos_router
-from app.routers.Seguridad import Usuario
-from fastapi.middleware.cors import CORSMiddleware
 from app.routers.Seguridad.Autenticacion import router as auth_routes
 from fastapi.middleware.cors import CORSMiddleware
 import sys
 import locale
 import uvicorn
-import logging
-
-
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -28,8 +22,6 @@ app.add_middleware(
 )
 
 
-logging.basicConfig(level=logging.DEBUG)
-
 sys.stdout.reconfigure(encoding="utf-8")
 locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
 
@@ -40,7 +32,6 @@ app.include_router(empleados.router)
 app.include_router(Usuario.router)
 app.include_router(roles_router.router)
 app.include_router(permisos_router.router, tags=["Permisos"])
-app.include_router(Usuario.router, tags=["Usuarios"])
 
 @app.get("/")
 async def read_root():

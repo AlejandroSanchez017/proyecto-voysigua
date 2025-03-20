@@ -1,5 +1,4 @@
 import os
-import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import create_engine  # ✅ Importamos `create_engine` para la sesión síncrona
@@ -38,12 +37,12 @@ Base = declarative_base()
 
 # ✅ Dependencia para obtener una sesión asíncrona
 async def get_async_db():
-    session = AsyncSessionLocal()
-    try:
-        yield session
-    finally:
-        await session.close()
-
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()  # ✅ Asegura que la sesión se cierre correctamente
+            
 # ✅ Dependencia para obtener una sesión síncrona
 def get_sync_db():
     db = SyncSessionLocal()

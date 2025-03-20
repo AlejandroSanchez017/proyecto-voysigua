@@ -1,107 +1,108 @@
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import select
-from app.database import get_async_db, get_sync_db
-from app.crud.Seguridad.Usuarios import (obtener_todos_los_usuarios, insertar_usuario, actualizar_usuario, eliminar_usuario,autenticar_usuario,generar_otp,verificar_otp,
-    obtener_usuario_por_id, obtener_email_por_usuario
+from sqlalchemy.future import select
+from ...crud.Seguridad.Usuarios import (
+    obtener_email_por_usuario, verificar_otp, autenticar_usuario, generar_otp, 
+    create_user, update_user, eliminar_usuario, obtener_usuario_por_id, 
+    obtener_todos_los_usuarios as crud_obtener_todos_los_usuarios
 )
-from app.schemas.Seguridad.Usuarios import UsuarioCreate, UsuarioUpdate, UsuarioResponse, LoginSchema, OTPVerifySchema, UsuarioAuthResponse, ResendOTPRequest
-from app.models.Seguridad.Usuarios import Usuario
-from app.models.Personas.personas import Persona
-from app.utils.security import create_access_token
+from app.schemas.Seguridad.usuarios import UsuarioResponse, UsuarioCreate, UsuarioUpdate, LoginSchema, OTPVerifySchema
+from app.utils.security import create_access_token, get_current_user
 from app.utils.email_utils import enviar_email
+from app.database import get_sync_db, get_async_db
 from typing import List
-import logging
-import pyotp
+from datetime import datetime
 
-# Configurar logging
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
+# Crear una instancia de CryptContext para manejar la encriptación de contraseñas
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter()
 
-# ✅ Ruta para obtener todas las personas (SÍNCRONA)
-@router.get("/usuarios/", response_model=List[UsuarioAuthResponse])
-async def obtener_todos_los_usuarios(db: AsyncSession = Depends(get_async_db)):
-    result = await db.execute(select(Usuario))  # ✅ Obtiene `remember_token`
-    usuarios = result.scalars().all()
-
-    return [UsuarioAuthResponse.model_validate(user.__dict__) for user in usuarios]
-
-
-# ✅ Endpoint para insertar un nuevo usuario (ASÍNCRONO)
-@router.post("/usuarios/", response_model=UsuarioResponse)
-async def crear_usuario(usuario: UsuarioCreate, db: AsyncSession = Depends(get_async_db)):
-    try:
-        usuario_creado = await insertar_usuario(db, usuario)
-        return usuario_creado  # ✅ Devuelve `UsuarioResponse`
-    except Exception as e:
-        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
-        logger.error(f"Error al insertar usuario: {error_message}")
-        raise HTTPException(status_code=400, detail=error_message)
-
-
-
-# ✅ Endpoint para actualizar un usuario (ASÍNCRONO)
-@router.put("/usuarios/{id}", response_model=dict)
+#  Endpoint para actualizar un usuario existente
+@router.put("/usuarios/{id}")
 async def modificar_usuario(id: int, usuario: UsuarioUpdate, db: AsyncSession = Depends(get_async_db)):
     try:
-        response = await actualizar_usuario(db, id, usuario.dict(exclude_unset=True))  # Solo enviar valores proporcionados
+        usuario_dict = usuario.dict(exclude_unset=True)
+        response = await update_user(db, id, usuario_dict)
         return response
     except Exception as e:
-        logger.error(f"Error al actualizar usuario {id}: {str(e)}")
+        import traceback
+        error_message = traceback.format_exc()
+        raise HTTPException(status_code=400, detail=str(error_message))
+
+#  Endpoint para eliminar un usuario
+@router.delete("/usuarios/{id}")
+async def borrar_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
+    try:
+        usuario_eliminado = await eliminar_usuario(db, id)
+        if usuario_eliminado is None:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return {"message": "Usuario eliminado correctamente"}
+    except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
-# ✅ Endpoint para eliminar un usuario (ASÍNCRONO)
-@router.delete("/usuarios/{id}", response_model=dict)
-async def borrar_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
-    usuario_eliminado = await eliminar_usuario(db, id)
-    if usuario_eliminado is None:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
-    return {"message": f"Usuario con ID {id} eliminado correctamente"}
-
-
-# ✅ Endpoint para obtener un usuario por ID (ASÍNCRONO)
+# Ruta para obtener un usuario por ID
 @router.get("/usuarios/{id}", response_model=UsuarioResponse)
-async def obtener_usuario(id: int, db: AsyncSession = Depends(get_async_db)):
+async def obtener_usuario(id: int, db: AsyncSession = Depends(get_sync_db)):
     usuario = await obtener_usuario_por_id(db, id)
+
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return UsuarioResponse.model_validate(usuario)
 
-# ✅ Endpoint para iniciar sesión y obtener un token de acceso (ASÍNCRONO)
+    return usuario
+
+#  Ruta para obtener todos los usuarios
+@router.get("/usuarios", response_model=List[UsuarioResponse])  
+async def obtener_todos_los_usuarios(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_async_db)):
+    usuarios = await crud_obtener_todos_los_usuarios(db, skip, limit)
+    return usuarios
+
+# Endpoint para iniciar sesión y obtener un token de acceso
 @router.post("/login")
-async def login(login: LoginSchema, db: AsyncSession = Depends(get_async_db)):
-
+async def login(login: LoginSchema, db: AsyncSession = Depends(get_sync_db)):
     user = await autenticar_usuario(db, login.username, login.password)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+
+    # Obtener email del usuario
+    email = await obtener_email_por_usuario(db, login.username)
+    if not email:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el correo del usuario")
     
-    # Generar código OTP y actualizar en la base de datos
-    otp_response = await generar_otp(db, login.username)
-    # Generar token JWT (si lo deseas)
-    access_token = create_access_token({"sub": user.username})
+    # Generar código OTP
+    otp_code = await generar_otp(db, login.username)
+    if not otp_code:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo generar el código OTP")
+    
+    # Enviar código OTP por email
+    await enviar_email(email, otp_code)
+    
+    return {"message": "Se ha enviado un código OTP a tu correo electrónico. Ingrese el código para completar el login."}
 
-    return {
-        "message": "Se ha enviado un código OTP a tu correo electrónico. Ingrese el código para completar el login.",
-        "otp_expires_in": 120  # Opcional: Indica el tiempo de validez del OTP
-    }
-
-# ✅ Endpoint para verificar OTP (ASÍNCRONO)
 @router.post("/verify-otp")
-async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_async_db)):
-    otp_valid = await verificar_otp(db, data.username, data.otp_code)
+async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_sync_db)):
+    # Buscar el usuario en la base de datos
+    result = await db.execute(select(Usuario).filter(Usuario.username == data.username))
+    user = result.scalars().first()
 
-    if not otp_valid:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Código OTP inválido o expirado")
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
-    # Generar token JWT después de verificar el OTP
+    # Verificar si el OTP es correcto
+    is_valid = await verificar_otp(db, data.username, data.otp_code)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Código OTP inválido")
+
+    # Generar el token JWT
     access_token = create_access_token(data={"sub": data.username})
+
+    # ✅ Guarda solo el token como string
+    user.remember_token = str(access_token)
+    await db.commit()
 
     return {
         "message": "✅ Autenticación exitosa",
@@ -109,34 +110,21 @@ async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_async
         "token_type": "bearer"
     }
 
-@router.post("/resend-otp")
-async def resend_otp(data: ResendOTPRequest, db: AsyncSession = Depends(get_async_db)):
-    user = await obtener_email_por_usuario(db, data.username)  # ✅ Reutilizamos la misma función
+#  Ruta protegida (requiere autenticación)
+@router.get("/usuarios/protected", response_model=UsuarioResponse)
+async def protected_route(current_user: UsuarioResponse = Depends(get_current_user)):
+    return current_user
 
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+# Crear un nuevo usuario con contraseña cifrada y token
+@router.post("/usuarios/")
+async def crear_usuario(usuario: UsuarioCreate, db: AsyncSession = Depends(get_async_db)):
+    try:
+        # Intenta crear el usuario directamente con SQLAlchemy
+        new_user = await create_user(db, usuario)
 
-    # 🔹 Obtener el correo de la tabla `personas`
-    persona = await db.get(Persona, user.cod_persona)
+        # Generar el token de acceso para el usuario recién creado
+        access_token = create_access_token(data={"sub": new_user.username})
 
-    if not persona or not persona.correo:
-        raise HTTPException(status_code=400, detail="No se encontró el correo electrónico del usuario")
-
-    email = persona.correo
-
-    # 🔹 Si el usuario no tiene un OTP secreto, generarlo y guardarlo
-    if not user.otp_secret:
-        user.otp_secret = pyotp.random_base32()
-        await db.commit()
-
-    # 🔹 Generar código OTP con el secreto del usuario
-    totp = pyotp.TOTP(user.otp_secret, interval=120)
-    otp_code = totp.now()
-
-    # 🔹 Enviar OTP por correo
-    success = enviar_email(email, otp_code)
-
-    if success:
-        return {"message": "Código OTP enviado correctamente"}
-    
-    raise HTTPException(status_code=500, detail="Error al enviar el correo")
+        return {"message": "Usuario insertado correctamente", "access_token": access_token}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

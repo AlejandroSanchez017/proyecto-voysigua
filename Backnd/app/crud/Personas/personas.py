@@ -1,4 +1,4 @@
-
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text, select
 from app.schemas.Personas.personas import PersonaCreate, PersonaUpdate, TipoPersonaCreate
@@ -16,6 +16,12 @@ async def insertar_persona(db: AsyncSession, persona: PersonaCreate):
 
 # Actualizar persona
 async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: PersonaUpdate):
+    # Verificar si existe
+    check_query = text("SELECT 1 FROM tbl_personas WHERE cod_persona = :id")
+    result = await db.execute(check_query, {"id": cod_persona})
+    if not result.scalar():
+        raise HTTPException(status_code=404, detail=f"No se encontró la persona con ID {cod_persona}")
+
     query = text("""
         CALL actualizar_persona(
             :cod_persona,
@@ -28,9 +34,18 @@ async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: Person
             :estado
         )
     """)
-    async with db.begin():
-        await db.execute(query, {"cod_persona": cod_persona, **persona.model_dump(exclude_unset=True)})
-        await db.commit()
+
+    try:
+        # Sin 'async with db.begin()'
+        await db.execute(
+            query,
+            {"cod_persona": cod_persona, **persona.model_dump(exclude_unset=True)}
+        )
+        await db.commit()  # commit manual
+        return {"message": "Persona actualizada exitosamente"}
+    except Exception as e:
+        await db.rollback()  # rollback manual si hay error
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Eliminar persona
 async def eliminar_persona(db: AsyncSession, cod_persona: int):
@@ -55,10 +70,9 @@ async def obtener_todas_las_personas(db: AsyncSession, skip: int = 0, limit: int
 # Insertar TipoPersona
 async def insertar_tipo_persona(db: AsyncSession, tipo_persona: TipoPersonaCreate):
     db_tipo_persona = TipoPersona(tipo_persona=tipo_persona.tipo_persona)
-    async with db.begin():
-        db.add(db_tipo_persona)
-        await db.commit()
-        await db.refresh(db_tipo_persona)
+    db.add(db_tipo_persona)
+    await db.commit()  # ✅ Hacemos commit aquí sin usar `async with db.begin()`
+    await db.refresh(db_tipo_persona)
     return db_tipo_persona
 
 # Eliminar TipoPersona
