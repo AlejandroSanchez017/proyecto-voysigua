@@ -42,18 +42,19 @@ const GestionPersonas = () => {
   }, [location]);
 
   // Cargar Personas al iniciar
-useEffect(() => {
-    const fetchPersonas = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/personas");
-        const data = await response.json();
-        setPersonas(data);
-      } catch (error) {
-        console.error("Error al cargar Personas:", error);
-        setError("Error al cargar Personas");
-      }
-    };
-    fetchPersonas();
+  const fetchPersonas = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/personas");
+      const data = await response.json();
+      setPersonas(data);
+    } catch (error) {
+      console.error("Error al cargar Personas:", error);
+      setError("Error al cargar Personas");
+    }
+  };
+  
+  useEffect(() => {
+    fetchPersonas(); // Carga inicial de datos
   }, []);
 
 //Edit
@@ -175,76 +176,57 @@ const handleDelete = async (cod_persona) => {
 //Guardar datos
 const handleSaveNewPersonas = async () => {
   try {
-    // Mostrar en consola los datos que se enviarán al servidor
-    console.log("Datos a enviar:", newPersonasData);
-
-    // Enviar datos al servidor para guardar el nuevo persona
     const response = await fetch('http://localhost:8000/personas/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPersonasData),
     });
 
-    // Verificar si la respuesta es exitosa
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Error al guardar:', errorData); // Mostrar el error recibido del servidor
-      throw new Error('Error al guardar la persona en la base de datos');
+      throw new Error('Error al guardar la persona');
     }
 
-    // Mostrar en consola la respuesta completa del servidor
-    console.log("Respuesta del servidor:", response);
+    await fetchPersonas(); // Recargar datos después de agregar
 
-    const result = await response.json();
-
-    // Mostrar en consola el resultado JSON recibido del servidor
-    console.log("Datos guardados en la base de datos:", result);
-
-    // Si la respuesta fue exitosa, actualizar el estado de los personas
-    setPersonas((prevPersonas) => [
-      ...prevPersonas,
-      { ...newPersonasData, cod_persona: prevPersonas.length + 1 },
-    ]);
-
-    // Limpiar el estado de newPersonasData y ocultar el formulario
     setNewPersonasData({
-        cod_tipo_persona: "",
-        dni: "",
-        primer_nombre: "",
-        apellido: "",
-        fecha_nacimiento: "",
-        sexo: "",
-        correo: "",
-        estado: "",
+      cod_tipo_persona: "",
+      dni: "",
+      primer_nombre: "",
+      apellido: "",
+      fecha_nacimiento: "",
+      sexo: "",
+      correo: "",
+      estado: "",
     });
-    setShowNewPersonasRow(false);  // Ocultar la fila de "Agregar nuevo persona"
 
-    // Mostrar mensaje de éxito
+    setShowNewPersonasRow(false);
+
     Swal.fire({
       icon: "success",
-      title: "Persona guardado",
+      title: "Persona guardada",
       text: "La Persona se ha guardado exitosamente.",
-      confirmButtonColor: "#3085d6",
-      confirmButtonText: "OK"
     });
+
   } catch (error) {
     console.error('Error:', error);
     Swal.fire({
       icon: "error",
       title: "Error al guardar la persona",
       text: error.message,
-      confirmButtonColor: "#d33",
-      confirmButtonText: "OK"
     });
   }
 };
 
+
+
  // Filter personas based on filter text
- const personasFiltradas = personas.filter(persona =>
-  persona.primer_nombre.toLowerCase().includes(textoFiltro.toLowerCase())
-);
+ const personasFiltradas = Array.isArray(personas)
+  ? personas.filter(
+      persona =>
+        persona.primer_nombre &&
+        persona.primer_nombre.toLowerCase().includes(textoFiltro.toLowerCase())
+    )
+  : [];
 
 return (
     <div>

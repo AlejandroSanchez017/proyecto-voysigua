@@ -74,6 +74,11 @@ class EmpleadoResponse(EmpleadoBase):
     cod_tipo_empleado: Optional[int] = None
     cod_area: Optional[int] = None
     cod_tipo_contrato: Optional[int] = None
+    # Campos extra (relaciones) también opcionales
+    nombre_tipo_empleado: Optional[str] = None
+    nombre_area: Optional[str] = None
+    tipo_contrato: Optional[str] = None
+
 
     class Config:
         from_attributes = True

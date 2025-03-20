@@ -9,7 +9,7 @@ from app.schemas.Personas.empleados import (
     AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate, NombreTipoEmpleado, Areas as AreasSchema
 )
 from app.crud.Personas.empleados import (
-    insertar_empleado, actualizar_empleado_crud, despedir_empleado_crud, eliminar_empleado, insertar_tipo_empleado, obtener_tipos_empleado, 
+    insertar_empleado, actualizar_empleado, despedir_empleado_crud, eliminar_empleado, insertar_tipo_empleado, obtener_tipos_empleado, 
     eliminar_tipo_empleado, insertar_area, obtener_areas, eliminar_area, insertar_tipo_contrato, obtener_tipos_contrato,
     eliminar_tipo_contrato
 )
@@ -30,27 +30,12 @@ async def crear_empleado(empleado: EmpleadoCreate, db: AsyncSession = Depends(ge
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/empleados/{cod_empleado}")
-async def modificar_empleado(
-    cod_empleado: int,
-    empleado: EmpleadoUpdate,
-    db: AsyncSession = Depends(get_async_db)
-):
+async def modificar_empleado(cod_empleado: int, empleado: EmpleadoUpdate, db: AsyncSession = Depends(get_async_db)):
     try:
-        await actualizar_empleado_crud(db, cod_empleado, empleado)
+        await actualizar_empleado(db, cod_empleado, empleado)
         return {"message": "Empleado actualizado correctamente"}
     except Exception as e:
-        error_str = str(e)
-
-        # Busca la subcadena que lanza tu procedure
-        if "No se encontró el empleado con ID" in error_str:
-            # Muestra SOLO tu mensaje limpio, en vez de la traza larga
-            raise HTTPException(
-                status_code=404,
-                detail=f"No se encontró el empleado con ID {cod_empleado}"
-            )
-        else:
-            # Otros errores
-            raise HTTPException(status_code=400, detail=error_str)
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/empleados/despedir/{cod_empleado}")
 async def despedir_empleado(
@@ -106,6 +91,9 @@ def obtener_todos_los_empleados(db: Session = Depends(get_sync_db)):
             cod_tipo_empleado=empleado.cod_tipo_empleado,  # ✅ Agregamos el código
             cod_area=empleado.cod_area,  # ✅ Agregamos el código
             cod_tipo_contrato=empleado.cod_tipo_contrato,  # ✅ Agregamos el código
+            nombre_tipo_empleado=empleado.tipo_empleado.nombre_tipo_empleado if empleado.tipo_empleado else None,
+            nombre_area=empleado.area.nombre_area if empleado.area else None,
+            tipo_contrato=empleado.contrato.tipo_contrato if empleado.contrato else None,
             fecha_salida=empleado.fecha_salida,
             motivo_salida=empleado.motivo_salida,
             fecha_contratacion=empleado.fecha_contratacion,
@@ -138,6 +126,9 @@ def obtener_empleado_por_id_endpoint(cod_empleado: int, db: Session = Depends(ge
         cod_tipo_empleado=empleado.cod_tipo_empleado,
         cod_area=empleado.cod_area,
         cod_tipo_contrato=empleado.cod_tipo_contrato,
+        nombre_tipo_empleado=empleado.tipo_empleado.nombre_tipo_empleado if empleado.tipo_empleado else None,
+        nombre_area=empleado.area.nombre_area if empleado.area else None,
+        tipo_contrato=empleado.contrato.tipo_contrato if empleado.contrato else None,
         fecha_salida=empleado.fecha_salida,
         motivo_salida=empleado.motivo_salida,
         fecha_contratacion=empleado.fecha_contratacion,
