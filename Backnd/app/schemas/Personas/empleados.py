@@ -2,15 +2,6 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional
 
-
-# ------------------------------------------------------------------------------
-# BASES
-# ------------------------------------------------------------------------------
-# Estas clases “base” suelen usarse para la lógica de creación/actualización,
-# por eso en EmpleadoBase los campos son todos obligatorios.
-# Si *durante la creación* necesitas 'cod_area', 'cod_tipo_empleado' y 'cod_tipo_contrato',
-# lo dejas como int (no Optional). Aun así, podrían ser Optional si te interesa
-# que sean opcionales al crear.
 class EmpleadoBase(BaseModel):
     cod_persona: int
     cod_tipo_empleado: int
@@ -35,20 +26,11 @@ class EmpleadoUpdateBase(BaseModel):
     estado_empleado: str
 
 
-# ------------------------------------------------------------------------------
-# DESPEDIR
-# ------------------------------------------------------------------------------
-# Si *necesitas* que sean obligatorios, mantén fecha_salida y motivo_salida como no opcionales.
-# De lo contrario, hazlos opcionales. Pero NO mezcles la definición duplicada dentro de la misma clase.
 class EmpleadoDespedir(BaseModel):
     fecha_salida: Optional[date] = None
     motivo_salida: Optional[str] = None
 
 
-# ------------------------------------------------------------------------------
-# CREAR / MODIFICAR
-# ------------------------------------------------------------------------------
-# Hereda de las "bases" para creación y actualización.
 class EmpleadoCreate(EmpleadoBase):
     pass
 
@@ -56,16 +38,6 @@ class EmpleadoCreate(EmpleadoBase):
 class EmpleadoUpdate(EmpleadoUpdateBase):
     pass
 
-
-# ------------------------------------------------------------------------------
-# RESPUESTA
-# ------------------------------------------------------------------------------
-# Aquí está el ajuste clave:
-# - EmpleadoResponse hereda de EmpleadoBase, que tiene
-#   cod_area, cod_tipo_empleado, cod_tipo_contrato como int obligatorios,
-#   pero en la BD pueden ser NULL al despedir.
-# - Para “sobrescribirlos” y permitir None, redeclaramos *solo* esos campos
-#   como Optional[int].
 class EmpleadoResponse(EmpleadoBase):
     cod_empleado: int
 

@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
 
 from ..models.Seguridad.Usuarios import Usuario
-from ..schemas.Seguridad.usuarios import LoginSchema
+from ..schemas.Seguridad.Usuarios import LoginSchema
 from app.database import get_sync_db, get_async_db
 
 # Cargar variables de entorno desde .env

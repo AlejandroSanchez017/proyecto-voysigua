@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from ...schemas.Seguridad.usuarios import LoginSchema, OTPVerifySchema
+from ...schemas.Seguridad.Usuarios import LoginSchema, OTPVerifySchema
 from ...models.Seguridad.Usuarios import Usuario
 from ...utils.security import create_access_token
+from sqlalchemy.sql import select
 from ...crud.Seguridad.Usuarios import (
     autenticar_usuario, generar_otp, verificar_otp, obtener_email_por_usuario
 )

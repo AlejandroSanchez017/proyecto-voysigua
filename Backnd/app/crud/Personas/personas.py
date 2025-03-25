@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text, select
+from sqlalchemy.exc import IntegrityError
 from app.schemas.Personas.personas import PersonaCreate, PersonaUpdate, TipoPersonaCreate
 from app.models.Personas.personas import Persona, TipoPersona
 
@@ -36,15 +37,19 @@ async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: Person
     """)
 
     try:
-        # Sin 'async with db.begin()'
         await db.execute(
             query,
             {"cod_persona": cod_persona, **persona.model_dump(exclude_unset=True)}
         )
-        await db.commit()  # commit manual
+        await db.commit()
         return {"message": "Persona actualizada exitosamente"}
+
+    except IntegrityError as e:
+        await db.rollback()
+        raise e  # 🔥 Esto permite que el router capture correctamente el tipo de error
+
     except Exception as e:
-        await db.rollback()  # rollback manual si hay error
+        await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
 # Eliminar persona

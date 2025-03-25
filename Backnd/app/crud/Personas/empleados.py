@@ -18,12 +18,11 @@ async def insertar_empleado(db: AsyncSession, empleado: EmpleadoCreate):
                                :fecha_contratacion, :salario, :estado_empleado)
     """)
     try:
-        async with db.begin():
-            await db.execute(query, empleado.model_dump(exclude_unset=True))
-            await db.commit()
+        await db.execute(query, empleado.model_dump(exclude_unset=True))
+        await db.commit()  # commit manual
     except Exception as e:
-        logger.error(f"Error al insertar empleado: {str(e)}")
         await db.rollback()
+        logger.error(f"Error al insertar empleado: {str(e)}")
         raise
 
 # Insertar tipo de empleado

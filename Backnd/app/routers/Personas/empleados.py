@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
 from app.database import get_async_db, get_sync_db  # ✅ Importamos ambas funciones correctamente
+from sqlalchemy.exc import IntegrityError
+from app.utils.utils import extraer_campo_foreign_key, extraer_campo_null
 from app.models.Personas.empleados import Empleado as EmpleadoModel  # ✅ Corrección
 from app.schemas.Personas.empleados import (
     EmpleadoCreate, EmpleadoResponse, NombreTipoEmpleadoCreate, TipoContrato,
@@ -21,15 +23,47 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/empleados/")
+@router.post("/empleados/", response_model=dict)
 async def crear_empleado(empleado: EmpleadoCreate, db: AsyncSession = Depends(get_async_db)):
     try:
         await insertar_empleado(db, empleado)
         return {"message": "Empleado insertado correctamente"}
+
+    except IntegrityError as e:
+        error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error(f"Error de integridad al insertar empleado: {error_msg}")
+
+        # Clave foránea inválida
+        if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
+            campo = extraer_campo_foreign_key(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El valor ingresado para '{campo}' no existe en la base de datos. Verifica que el dato sea válido."
+            )
+
+        # Clave única duplicada (si tuvieras alguna en empleados)
+        if "duplicate key" in error_msg.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="Ya existe un empleado con un valor que debe ser único. Verifica los datos ingresados."
+            )
+
+        # Campo obligatorio omitido
+        if "null value in column" in error_msg.lower():
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El campo '{campo}' es obligatorio y no puede estar vacío."
+            )
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
     except Exception as e:
+        logger.error(f"Error general al crear empleado: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/empleados/{cod_empleado}")
+
+@router.put("/empleados/{cod_empleado}", response_model=dict)
 async def modificar_empleado(
     cod_empleado: int,
     empleado: EmpleadoUpdate,
@@ -38,19 +72,48 @@ async def modificar_empleado(
     try:
         await actualizar_empleado_crud(db, cod_empleado, empleado)
         return {"message": "Empleado actualizado correctamente"}
+
+    except IntegrityError as e:
+        error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error(f"Error de integridad en actualización: {type(e.orig)} - {error_msg}")
+
+        # 🔍 Clave foránea inválida
+        if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
+            campo = extraer_campo_foreign_key(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El valor ingresado para '{campo}' no existe en la base de datos. Verifica que sea válido."
+            )
+
+        # ❗ Clave única duplicada (si aplica)
+        if "duplicate key" in error_msg.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="Ya existe un empleado con un valor que debe ser único. Verifica los datos ingresados."
+            )
+
+        # ⚠️ Campo obligatorio omitido
+        if "null value in column" in error_msg.lower():
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El campo '{campo}' es obligatorio y no puede estar vacío."
+            )
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
     except Exception as e:
         error_str = str(e)
+        logger.error(f"Error general al actualizar empleado: {error_str}")
 
-        # Busca la subcadena que lanza tu procedure
+        # 💡 Caso: procedimiento lanza error personalizado
         if "No se encontró el empleado con ID" in error_str:
-            # Muestra SOLO tu mensaje limpio, en vez de la traza larga
             raise HTTPException(
                 status_code=404,
                 detail=f"No se encontró el empleado con ID {cod_empleado}"
             )
-        else:
-            # Otros errores
-            raise HTTPException(status_code=400, detail=error_str)
+
+        raise HTTPException(status_code=400, detail=error_str)
 
 @router.put("/empleados/despedir/{cod_empleado}")
 async def despedir_empleado(

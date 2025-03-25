@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from app.database import get_async_db, get_sync_db
+from sqlalchemy.exc import IntegrityError
+from app.utils.utils import extraer_campo_foreign_key, extraer_campo_null
 from app.crud.Personas.personas import (
     insertar_persona, actualizar_persona, eliminar_persona,
     obtener_persona_por_id, insertar_tipo_persona, eliminar_tipo_persona
@@ -22,19 +24,98 @@ async def crear_persona(persona: PersonaCreate, db: AsyncSession = Depends(get_a
     try:
         await insertar_persona(db, persona)
         return {"message": "Persona insertada exitosamente"}
+
+    except IntegrityError as e:
+        error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error(f"Error de integridad al insertar persona: {error_msg}")
+
+        # 🟠 Clave foránea: cod_tipo_persona no existe
+        if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
+            campo = extraer_campo_foreign_key(error_msg)
+            if campo == "cod_tipo_persona":
+                raise HTTPException(
+                    status_code=400,
+                    detail="El tipo de persona ingresado no existe. Verifica que 'cod_tipo_persona' sea válido."
+                )
+            raise HTTPException(
+                status_code=400,
+                detail=f"El valor ingresado para '{campo}' no existe en la base de datos."
+            )
+
+        # 🟠 Clave única duplicada: número de identificación ya registrado
+        if (
+            "dni" in error_msg.lower() and
+            ("tbl_personas_dni_key" in error_msg.lower() or "restricción de unicidad" in error_msg.lower())
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Ya existe una persona registrada con este número de identificación."
+            )
+
+        # 🟠 Campo obligatorio omitido
+        if "null value in column" in error_msg.lower():
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El campo '{campo}' es obligatorio y no puede estar vacío."
+            )
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
     except Exception as e:
-        error_message = str(e.orig) if hasattr(e, 'orig') else str(e)
-        logger.error(f"Error al insertar persona: {error_message}")
-        raise HTTPException(status_code=400, detail=error_message)
+        logger.error(f"Error general al insertar persona: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ Endpoint para actualizar una persona (ASÍNCRONO)
 @router.put("/personas/{cod_persona}", response_model=dict)
-async def modificar_persona(cod_persona: int, persona: PersonaUpdate, db: AsyncSession = Depends(get_async_db)):
+async def modificar_persona(
+    cod_persona: int,
+    persona: PersonaUpdate,
+    db: AsyncSession = Depends(get_async_db)
+):
     try:
         await actualizar_persona(db, cod_persona, persona)
         return {"message": "Persona actualizada exitosamente"}
+
+    except IntegrityError as e:
+        error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error(f"Error de integridad al actualizar persona: {error_msg}")
+
+        # 🟠 Clave foránea: cod_tipo_persona no existe
+        if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
+            campo = extraer_campo_foreign_key(error_msg)
+            if campo == "cod_tipo_persona":
+                raise HTTPException(
+                    status_code=400,
+                    detail="El tipo de persona ingresado no existe. Verifica que 'cod_tipo_persona' sea válido."
+                )
+            raise HTTPException(
+                status_code=400,
+                detail=f"El valor ingresado para '{campo}' no existe en la base de datos."
+            )
+
+        # 🟠 Clave única duplicada: número de identificación ya registrado
+        if (
+            "dni" in error_msg.lower() and
+            ("tbl_personas_dni_key" in error_msg.lower() or "restricción de unicidad" in error_msg.lower())
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Ya existe otra persona registrada con este número de identificación."
+            )
+
+        # 🟠 Campo obligatorio omitido
+        if "null value in column" in error_msg.lower():
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El campo '{campo}' es obligatorio y no puede estar vacío."
+            )
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
     except Exception as e:
-        logger.error(f"Error al actualizar persona {cod_persona}: {str(e)}")
+        logger.error(f"Error general al actualizar persona {cod_persona}: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
 # ✅ Endpoint para eliminar una persona (ASÍNCRONO)
