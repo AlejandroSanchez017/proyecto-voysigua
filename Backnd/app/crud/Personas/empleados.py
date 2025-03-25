@@ -18,12 +18,11 @@ async def insertar_empleado(db: AsyncSession, empleado: EmpleadoCreate):
                                :fecha_contratacion, :salario, :estado_empleado)
     """)
     try:
-        async with db.begin():
-            await db.execute(query, empleado.model_dump(exclude_unset=True))
-            await db.commit()
+        await db.execute(query, empleado.model_dump(exclude_unset=True))
+        await db.commit()  # commit manual
     except Exception as e:
-        logger.error(f"Error al insertar empleado: {str(e)}")
         await db.rollback()
+        logger.error(f"Error al insertar empleado: {str(e)}")
         raise
 
 # Insertar tipo de empleado
@@ -69,7 +68,7 @@ def obtener_todos_los_empleados(db: Session, skip: int = 0, limit: int = 10):
         .all()
 
 # Actualizar empleado
-async def actualizar_empleado(db: AsyncSession, cod_empleado: int, empleado: EmpleadoUpdate):
+async def actualizar_empleado_crud(db: AsyncSession, cod_empleado: int, empleado: EmpleadoUpdate):
     query = text("""
         CALL actualizar_empleado(
             :cod_empleado,
@@ -85,13 +84,19 @@ async def actualizar_empleado(db: AsyncSession, cod_empleado: int, empleado: Emp
         )
     """)
     try:
-        async with db.begin():
-            await db.execute(query, {"cod_empleado": cod_empleado, **empleado.model_dump(exclude_unset=True)})
-            await db.commit()
+        await db.execute(
+            query,
+            {
+                "cod_empleado": cod_empleado,
+                **empleado.model_dump(exclude_unset=True)
+            }
+        )
+        await db.commit()
+        return {"message": f"Empleado con ID {cod_empleado} actualizado correctamente"}
     except Exception as e:
-        logger.error(f"Error al actualizar empleado {cod_empleado}: {str(e)}")
         await db.rollback()
         raise
+
     
 # Insertar área
 async def insertar_area(db: AsyncSession, area: AreasCreate):

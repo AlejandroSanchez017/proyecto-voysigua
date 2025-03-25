@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import text
-from sqlalchemy import select
+from sqlalchemy.sql import text, select
 from app.schemas.Seguridad.permisos import PermisoCreate, PermisoUpdate
 from app.models.Seguridad.permisos import Permission
 import logging

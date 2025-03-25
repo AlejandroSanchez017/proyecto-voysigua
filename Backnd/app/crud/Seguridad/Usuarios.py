@@ -39,7 +39,7 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     await db.refresh(new_user)  # Obtener los datos actualizados desde la BD
 
     # 🔹 Conversión explícita a UsuarioResponse antes de devolverlo
-    return UsuarioResponse.model_validate(new_user.__dict__)
+    return UsuarioResponse.model_validate(new_user._dict_)
 
 
 
@@ -55,7 +55,7 @@ async def actualizar_usuario(db: AsyncSession, id: int, user_data: dict):
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    new_token = None  # Variable para guardar el nuevo token si cambia `password` o `username`
+    new_token = None  # Variable para guardar el nuevo token si cambia password o username
 
     # 🔹 Si se proporciona una nueva contraseña, la encriptamos y generamos un nuevo token
     if "password" in user_data and user_data["password"]:
