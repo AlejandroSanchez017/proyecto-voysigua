@@ -1,11 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.sql import text, select
+from typing import List
+from fastapi import HTTPException
 from app.schemas.Personas.empleados import (
     EmpleadoCreate, EmpleadoUpdate, NombreTipoEmpleadoCreate, 
-    AreasCreate, TipoContratoCreate, EmpleadoDespedir
+    AreasCreate, TipoContratoCreate, EmpleadoDespedir, MarcaCreate, MarcaUpdate, TipoTransporteCreate, TipoTransporteUpdate,
+    VehiculoMotoristaCreate, VehiculoMotoristaUpdate
 )
-from app.models.Personas.empleados import Empleado, NombreTipoEmpleado, Areas, TipoContrato
+from app.models.Personas.empleados import (Empleado, NombreTipoEmpleado, Areas, TipoContrato, Marca, TipoTransporte,
+                                           VehiculoMotorista)
 import logging
 
 logging.basicConfig(level=logging.ERROR)
@@ -274,5 +278,263 @@ async def eliminar_tipo_empleado(db: AsyncSession, cod_tipo_empleado: int):
         await db.rollback()
         raise
 
+async def insertar_marca(db: AsyncSession, marca: MarcaCreate):
+    query = text("CALL insertar_marca(:_nombre_marca)")
 
+    try:
+        async with db.begin():
+            await db.execute(query, {"_nombre_marca": marca.nombre_marca})
+        return {"message": f"Marca '{marca.nombre_marca}' insertada exitosamente"}
+    except Exception as e:
+        logger.error(f"Error al insertar marca: {e}")
+        raise HTTPException(status_code=400, detail="No se pudo insertar la marca.")
+    
+async def modificar_marca(db: AsyncSession, cod_marca: int, marca: MarcaUpdate):
+    # Verificar si existe
+    result = await db.execute(
+        select(Marca).where(Marca.cod_marca == cod_marca)
+    )
+    existente = result.scalar_one_or_none()
+    if not existente:
+        raise HTTPException(status_code=404, detail=f"No se encontró la marca con ID {cod_marca}")
 
+    query = text("CALL modificar_marca(:_cod_marca, :_nombre_marca)")
+
+    try:
+        await db.execute(query, {
+            "_cod_marca": cod_marca,
+            "_nombre_marca": marca.nombre_marca
+        })
+        await db.commit()
+        return {"message": f"Marca con ID {cod_marca} modificada exitosamente"}
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail="No se pudo modificar la marca.")
+    
+async def eliminar_marca(db: AsyncSession, cod_marca: int):
+    # Verificar si la marca existe
+    result = await db.execute(
+        select(Marca).where(Marca.cod_marca == cod_marca)
+    )
+    existente = result.scalar_one_or_none()
+
+    if not existente:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró la marca con ID {cod_marca}"
+        )
+
+    query = text("CALL eliminar_marca(:_cod_marca)")
+
+    try:
+        await db.execute(query, {"_cod_marca": cod_marca})
+        await db.commit()
+        return {"message": f"Marca con ID {cod_marca} eliminada exitosamente"}
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Error interno al eliminar la marca.")
+
+def obtener_marcas(
+    db: Session, skip: int = 0, limit: int = 10
+) -> List[Marca]:
+    """
+    Devuelve una lista de marcas paginada.
+    - skip: cuántos registros omitir
+    - limit: cuántos registros devolver como máximo
+    """
+    return (
+        db.query(Marca).offset(skip).limit(limit).all()
+    )
+
+def obtener_marca_por_id(
+    db: Session, cod_marca: int
+) -> Marca:
+    """
+    Devuelve una marca por su ID.
+    - cod_marca: ID de la marca a consultar
+    """
+    marca = (
+        db.query(Marca).filter(Marca.cod_marca == cod_marca).first()
+    )
+
+    if not marca:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró la marca con ID {cod_marca}"
+        )
+
+    return marca
+
+async def insertar_tipo_transporte(db: AsyncSession, tipo: TipoTransporteCreate):
+    query = text("CALL insertar_tipo_transporte(:_nombre_tipo_transporte)")
+
+    try:
+        async with db.begin():
+            await db.execute(query, {"_nombre_tipo_transporte": tipo.nombre_tipo_transporte})
+        return {"message": f"Tipo de transporte '{tipo.nombre_tipo_transporte}' insertado exitosamente"}
+    except Exception as e:
+        logger.error(f"Error al insertar tipo de transporte: {e}")
+        raise HTTPException(status_code=400, detail="No se pudo insertar el tipo de transporte.")
+    
+async def modificar_tipo_transporte(db: AsyncSession, cod_tipo_transporte: int, tipo: TipoTransporteUpdate):
+    # Verificar si existe
+    result = await db.execute(
+        select(TipoTransporte).where(TipoTransporte.cod_tipo_transporte == cod_tipo_transporte)
+    )
+    existente = result.scalar_one_or_none()
+    if not existente:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró el tipo de transporte con ID {cod_tipo_transporte}"
+        )
+
+    query = text("CALL modificar_tipo_transporte(:_cod_tipo_transporte, :_nombre_tipo_transporte)")
+
+    try:
+        await db.execute(query, {
+            "_cod_tipo_transporte": cod_tipo_transporte,
+            "_nombre_tipo_transporte": tipo.nombre_tipo_transporte
+        })
+        await db.commit()
+        return {"message": f"Tipo de transporte con ID {cod_tipo_transporte} modificado exitosamente"}
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail="No se pudo modificar el tipo de transporte.")
+    
+async def eliminar_tipo_transporte(db: AsyncSession, cod_tipo_transporte: int):
+    # Verificar existencia
+    result = await db.execute(
+        select(TipoTransporte).where(TipoTransporte.cod_tipo_transporte == cod_tipo_transporte)
+    )
+    existente = result.scalar_one_or_none()
+    if not existente:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró el tipo de transporte con ID {cod_tipo_transporte}"
+        )
+
+    query = text("CALL eliminar_tipo_transporte(:_cod_tipo_transporte)")
+
+    try:
+        await db.execute(query, {"_cod_tipo_transporte": cod_tipo_transporte})
+        await db.commit()
+        return {"message": f"Tipo de transporte con ID {cod_tipo_transporte} eliminado exitosamente"}
+    except Exception as e:
+        await db.rollback()
+        error_str = str(e)
+
+        if "en uso por" in error_str.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="Este tipo de transporte está en uso por uno o más vehículos y no se puede eliminar."
+            )
+
+        raise HTTPException(status_code=500, detail="Error interno al eliminar el tipo de transporte.")
+    
+def obtener_tipos_transporte(
+    db: Session,skip: int = 0,limit: int = 10) -> List[TipoTransporte]:
+    """
+    Devuelve una lista de tipos de transporte paginada.
+    - skip: cuántos registros omitir
+    - limit: cuántos registros devolver como máximo
+    """
+    return (
+        db.query(TipoTransporte).offset(skip).limit(limit).all()
+    )
+
+def obtener_tipo_transporte_por_id(
+    db: Session,cod_tipo_transporte: int) -> TipoTransporte:
+    """
+    Devuelve un tipo de transporte por su ID.
+    """
+    tipo = (db.query(TipoTransporte).filter(TipoTransporte.cod_tipo_transporte == cod_tipo_transporte).first())
+
+    if not tipo:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró el tipo de transporte con ID {cod_tipo_transporte}"
+        )
+
+    return tipo
+
+async def insertar_vehiculo_motorista(db: AsyncSession, vehiculo: VehiculoMotoristaCreate):
+    query = text("""
+        CALL insertar_vehiculo_motorista(
+            :_cod_persona,
+            :_cod_tipo_transporte,
+            :_modelo_transporte,
+            :_numero_placa,
+            :_chasis,
+            :_cod_marca,
+            :_estado
+        )
+    """)
+
+    try:
+        await db.execute(query, {
+            "_cod_persona": vehiculo.cod_persona,
+            "_cod_tipo_transporte": vehiculo.cod_tipo_transporte,
+            "_modelo_transporte": vehiculo.modelo_transporte,
+            "_numero_placa": vehiculo.numero_placa,
+            "_chasis": vehiculo.chasis,
+            "_cod_marca": vehiculo.cod_marca,
+            "_estado": vehiculo.estado
+        })
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise
+
+async def actualizar_vehiculo_motorista_crud(
+    db: AsyncSession,
+    cod_vehiculo: int,
+    vehiculo: VehiculoMotoristaUpdate
+):
+    query = text("""
+        CALL actualizar_vehiculo_motorista(
+            :_cod_vehiculo,
+            :_cod_tipo_transporte,
+            :_modelo_transporte,
+            :_numero_placa,
+            :_chasis,
+            :_cod_marca,
+            :_estado
+        )
+    """)
+    try:
+        await db.execute(query, {
+            "_cod_vehiculo": cod_vehiculo,
+            "_cod_tipo_transporte": vehiculo.cod_tipo_transporte,
+            "_modelo_transporte": vehiculo.modelo_transporte,
+            "_numero_placa": vehiculo.numero_placa,
+            "_chasis": vehiculo.chasis,
+            "_cod_marca": vehiculo.cod_marca,
+            "_estado": vehiculo.estado
+        })
+        await db.commit()
+        return {"message": f"Vehículo con ID {cod_vehiculo} actualizado correctamente"}
+    except Exception as e:
+        await db.rollback()
+        raise
+
+async def eliminar_vehiculo_motorista(db: AsyncSession, cod_vehiculo: int):
+    query = text("CALL eliminar_vehiculo_motorista(:_cod_vehiculo)")
+    try:
+        await db.execute(query, {"_cod_vehiculo": cod_vehiculo})
+        await db.commit()
+        return {"message": f"Vehículo con ID {cod_vehiculo} eliminado exitosamente"}
+    except Exception as e:
+        await db.rollback()
+        raise
+
+def obtener_vehiculos_motorista(db: Session,skip: int = 0,limit: int = 10) -> List[VehiculoMotorista]:
+    return (db.query(VehiculoMotorista).offset(skip).limit(limit).all())
+
+def obtener_vehiculo_motorista_por_id(db: Session, cod_vehiculo: int) -> VehiculoMotorista | None:
+    return db.query(VehiculoMotorista).filter(VehiculoMotorista.cod_vehiculo == cod_vehiculo).first()
+
+def obtener_vehiculos_por_estado(db: Session,estado: str,skip: int = 0,limit: int = 10) -> List[VehiculoMotorista]:
+    return (db.query(VehiculoMotorista).filter(VehiculoMotorista.estado == estado).offset(skip).limit(limit).all())
+
+def obtener_vehiculos_por_persona(db: Session,cod_persona: int,skip: int = 0,limit: int = 10) -> List[VehiculoMotorista]:
+    return (db.query(VehiculoMotorista).filter(VehiculoMotorista.cod_persona == cod_persona).offset(skip).limit(limit).all())

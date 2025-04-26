@@ -14,6 +14,7 @@ from app.models.Seguridad.Usuarios import Usuario
 from app.models.Personas.personas import Persona
 from app.utils.security import create_access_token
 from app.utils.email_utils import enviar_email
+from app.utils.utils import extraer_campo_foreign_key, extraer_campo_null
 from typing import List
 import logging
 import pyotp
@@ -24,15 +25,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-
-
 #  Ruta para obtener todas las personas (SÍNCRONA)
 @router.get("/usuarios/", response_model=List[UsuarioAuthResponse])
 async def obtener_todos_los_usuarios(db: AsyncSession = Depends(get_async_db)):
     result = await db.execute(select(Usuario))  #  Obtiene `remember_token`
     usuarios = result.scalars().all()
-
-    return [UsuarioAuthResponse.model_validate(user.__dict__) for user in usuarios]
+    return [UsuarioResponse.model_validate(user) for user in usuarios]
 
 
 # Endpoint para insertar un nuevo usuario (ASÍNCRONO)
@@ -47,16 +45,64 @@ async def crear_usuario(usuario: UsuarioCreate, db: AsyncSession = Depends(get_a
         raise HTTPException(status_code=400, detail=error_message)
 
 
+    except IntegrityError as e:
+        error_msg = str(e.orig).lower()
+        logger.error(f"🔍 Error SQL en inserción de usuario: {error_msg}")
+
+        if "foreign key" in error_msg:
+            campo = extraer_campo_foreign_key(error_msg)
+            raise HTTPException(status_code=400, detail=f"El valor del campo '{campo}' no es válido o no existe.")
+
+        if "null value" in error_msg:
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(status_code=400, detail=f"El campo obligatorio '{campo}' no puede ser nulo.")
+
+        if "duplicate key" in error_msg or "users_username_key" in error_msg or "violates unique constraint" in error_msg:
+            raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        logger.error(f"Error inesperado al insertar usuario: {str(e)}")
+        raise HTTPException(status_code=500, detail="Ocurrió un error inesperado al crear el usuario.")
+
 
 # Endpoint para actualizar un usuario (ASÍNCRONO)
 @router.put("/usuarios/{id}", response_model=dict)
 async def modificar_usuario(id: int, usuario: UsuarioUpdate, db: AsyncSession = Depends(get_async_db)):
     try:
-        response = await actualizar_usuario(db, id, usuario.dict(exclude_unset=True))  # Solo enviar valores proporcionados
+        response = await actualizar_usuario(db, id, usuario.dict(exclude_unset=True))
         return response
+
+    except IntegrityError as e:
+        error_msg = str(e.orig).lower()
+
+        # Mostrar el error exacto en consola
+        logger.error(f"Error SQL detectado: {repr(e)}")
+        logger.error(f" Error no reconocido: {type(e.orig)}: {e.orig}")
+
+        if "foreign key" in error_msg:
+            campo = extraer_campo_foreign_key(error_msg)
+            raise HTTPException(status_code=400, detail=f"El valor del campo '{campo}' no es válido o no existe.")
+
+        if "null value" in error_msg:
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(status_code=400, detail=f"El campo obligatorio '{campo}' no puede ser nulo.")
+
+        if "users_username_key" in error_msg or "duplicate key" in error_msg:
+            raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
+    except HTTPException as e:
+        raise e
+
     except Exception as e:
         logger.error(f"Error al actualizar usuario {id}: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail="Error inesperado al actualizar el usuario.")
 
 
 #  Endpoint para eliminar un usuario (ASÍNCRONO)
@@ -129,6 +175,7 @@ async def verify_otp(data: OTPVerifySchema, db: AsyncSession = Depends(get_async
     user = await obtener_usuario_por_username(db, data.username)  # Debes tener esta función
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
 
     # Obtener roles
     roles = await consultar_roles_por_modelo_crud(db, "User", user.id)

@@ -2,20 +2,26 @@ import re
 from fastapi import HTTPException
 
 def extraer_campo_foreign_key(error_msg: str) -> str:
-    match = re.search(r'la llave \((\w+)\)=', error_msg)
+    # 🧠 Patrón directo desde DETAIL: La llave (cod_persona)=
+    match = re.search(r'la llave \((\w+)\)=', error_msg.lower())
     if match:
         return match.group(1)
 
-    match = re.search(r'Key \((\w+)\)=', error_msg)
+    # 🔍 Patrón en español del nombre de la restricción
+    match = re.search(r'viola la llave foránea «([\w_]+)_fkey»', error_msg.lower())
     if match:
-        return match.group(1)
+        nombre_fk = match.group(1)
+        partes = nombre_fk.split("_")
+        for i, parte in enumerate(partes):
+            if parte == "cod":
+                return "_".join(partes[i:])
+        return partes[-1]
 
-    match = re.search(r'viola la llave foránea «([\w_]+)_fkey»', error_msg)
-    if not match:
-        match = re.search(r'violates foreign key constraint "([\w_]+)_fkey"', error_msg)
-
+    # 🔍 Patrón en inglés (por si cambia a mensajes en inglés)
+    match = re.search(r'violates foreign key constraint "([\w_]+)_fkey"', error_msg.lower())
     if match:
-        partes = match.group(1).split("_")
+        nombre_fk = match.group(1)
+        partes = nombre_fk.split("_")
         for i, parte in enumerate(partes):
             if parte == "cod":
                 return "_".join(partes[i:])

@@ -25,11 +25,13 @@ class UsuarioUpdate(BaseModel):
     estado: Optional[int] = Field(None, description="Estado (1 = Activo, 0 = Inactivo)")
     primera_vez: Optional[bool] = Field(None, description="Indica si es la primera vez que inicia sesión")
     fecha_vencimiento: Optional[date] = Field(None, description="Fecha de expiración de la cuenta")
+    otp_configurado: Optional[bool] = Field(None, description="Indica si el OTP ha sido configurado")
 
 # Respuesta de Usuario (sin exponer la contraseña)
 class UsuarioResponse(UsuarioBase):
     id: int
     otp_secret: Optional[str] = Field(None, description="Código secreto OTP del usuario (para 2FA)")
+    otp_configurado: bool = Field(..., description="Indica si el OTP ha sido configurado")
 
     class Config:
         from_attributes = True  # 🔹 Esto convierte un modelo SQLAlchemy a un esquema Pydantic
