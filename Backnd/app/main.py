@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_sync_db, get_async_db  # ✅ Importamos las funciones correctas
 from sqlalchemy.sql import text
-from app.routers.Personas import personas, empleados
+from app.routers.Personas import (direcciones, personas, empleados, telefonos)
 from app.routers.Seguridad import (Usuario, roles as roles_router, permisos as permisos_router, 
                                    role_permissions as role_permissions_router, model_to_rol, 
                                    model_to_permission)
@@ -37,6 +37,8 @@ app.include_router(permisos_router.router, tags=["Permisos"])
 app.include_router(role_permissions_router.router, tags=["Permisos-Roles"])
 app.include_router(model_to_rol.router, tags=["Roles-Modelos"])
 app.include_router(model_to_permission.router, tags=["Permisos-Modelos"])
+app.include_router(telefonos.router, tags=["Tipos de Teléfono"])
+app.include_router(direcciones.router, tags=["Departamentos"])
 
 @app.get("/")
 async def read_root():
