@@ -19,17 +19,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # ✅ Endpoint para insertar una nueva persona (ASÍNCRONO)
-@router.post("/personas/", response_model=dict)
+@router.post("/personas/", response_model=PersonaResponse)
 async def crear_persona(persona: PersonaCreate, db: AsyncSession = Depends(get_async_db)):
     try:
-        await insertar_persona(db, persona)
-        return {"message": "Persona insertada exitosamente"}
+        nueva_persona = await insertar_persona(db, persona)
+        return nueva_persona  # ⬅️ Ahora devolvemos el objeto completo
 
     except IntegrityError as e:
         error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
         logger.error(f"Error de integridad al insertar persona: {error_msg}")
 
-        # 🟠 Clave foránea: cod_tipo_persona no existe
         if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
             campo = extraer_campo_foreign_key(error_msg)
             if campo == "cod_tipo_persona":
@@ -42,7 +41,6 @@ async def crear_persona(persona: PersonaCreate, db: AsyncSession = Depends(get_a
                 detail=f"El valor ingresado para '{campo}' no existe en la base de datos."
             )
 
-        # 🟠 Clave única duplicada: número de identificación ya registrado
         if (
             "dni" in error_msg.lower() and
             ("tbl_personas_dni_key" in error_msg.lower() or "restricción de unicidad" in error_msg.lower())
@@ -52,7 +50,6 @@ async def crear_persona(persona: PersonaCreate, db: AsyncSession = Depends(get_a
                 detail="Ya existe una persona registrada con este número de identificación."
             )
 
-        # 🟠 Campo obligatorio omitido
         if "null value in column" in error_msg.lower():
             campo = extraer_campo_null(error_msg)
             raise HTTPException(

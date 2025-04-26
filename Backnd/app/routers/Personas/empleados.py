@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
-from app.database import get_async_db, get_sync_db  # ✅ Importamos ambas funciones correctamente
+from app.database import get_async_db, get_sync_db  #  Importamos ambas funciones correctamente
 from sqlalchemy.exc import IntegrityError
 from app.utils.utils import extraer_campo_foreign_key, extraer_campo_null
-from app.models.Personas.empleados import Empleado as EmpleadoModel  # ✅ Corrección
+from app.models.Personas.empleados import Empleado as EmpleadoModel  # Corrección
 from app.schemas.Personas.empleados import (
     EmpleadoCreate, EmpleadoResponse, NombreTipoEmpleadoCreate, TipoContrato,
     AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate, NombreTipoEmpleado, Areas as AreasSchema
@@ -23,17 +23,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/empleados/", response_model=dict)
+@router.post("/empleados/", response_model=EmpleadoResponse)
 async def crear_empleado(empleado: EmpleadoCreate, db: AsyncSession = Depends(get_async_db)):
     try:
-        await insertar_empleado(db, empleado)
-        return {"message": "Empleado insertado correctamente"}
+        nuevo_empleado = await insertar_empleado(db, empleado)
+        return nuevo_empleado  #  Retorna el objeto completo
 
     except IntegrityError as e:
         error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
         logger.error(f"Error de integridad al insertar empleado: {error_msg}")
 
-        # Clave foránea inválida
         if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
             campo = extraer_campo_foreign_key(error_msg)
             raise HTTPException(
@@ -41,14 +40,12 @@ async def crear_empleado(empleado: EmpleadoCreate, db: AsyncSession = Depends(ge
                 detail=f"El valor ingresado para '{campo}' no existe en la base de datos. Verifica que el dato sea válido."
             )
 
-        # Clave única duplicada (si tuvieras alguna en empleados)
         if "duplicate key" in error_msg.lower():
             raise HTTPException(
                 status_code=400,
                 detail="Ya existe un empleado con un valor que debe ser único. Verifica los datos ingresados."
             )
 
-        # Campo obligatorio omitido
         if "null value in column" in error_msg.lower():
             campo = extraer_campo_null(error_msg)
             raise HTTPException(
@@ -85,14 +82,14 @@ async def modificar_empleado(
                 detail=f"El valor ingresado para '{campo}' no existe en la base de datos. Verifica que sea válido."
             )
 
-        # ❗ Clave única duplicada (si aplica)
+        #  Clave única duplicada (si aplica)
         if "duplicate key" in error_msg.lower():
             raise HTTPException(
                 status_code=400,
                 detail="Ya existe un empleado con un valor que debe ser único. Verifica los datos ingresados."
             )
 
-        # ⚠️ Campo obligatorio omitido
+        #  Campo obligatorio omitido
         if "null value in column" in error_msg.lower():
             campo = extraer_campo_null(error_msg)
             raise HTTPException(
@@ -106,7 +103,7 @@ async def modificar_empleado(
         error_str = str(e)
         logger.error(f"Error general al actualizar empleado: {error_str}")
 
-        # 💡 Caso: procedimiento lanza error personalizado
+        #  Caso: procedimiento lanza error personalizado
         if "No se encontró el empleado con ID" in error_str:
             raise HTTPException(
                 status_code=404,
@@ -161,14 +158,14 @@ def obtener_todos_los_empleados(db: Session = Depends(get_sync_db)):
     if not empleados:
         raise HTTPException(status_code=404, detail="No hay empleados registrados")
 
-    # ✅ Convertimos a Pydantic incluyendo claves foráneas
+    # Convertimos a Pydantic incluyendo claves foráneas
     return [
         EmpleadoResponse(
             cod_empleado=empleado.cod_empleado,
             cod_persona=empleado.cod_persona,
-            cod_tipo_empleado=empleado.cod_tipo_empleado,  # ✅ Agregamos el código
-            cod_area=empleado.cod_area,  # ✅ Agregamos el código
-            cod_tipo_contrato=empleado.cod_tipo_contrato,  # ✅ Agregamos el código
+            cod_tipo_empleado=empleado.cod_tipo_empleado,  #  Agregamos el código
+            cod_area=empleado.cod_area,  #  Agregamos el código
+            cod_tipo_contrato=empleado.cod_tipo_contrato,  #  Agregamos el código
             fecha_salida=empleado.fecha_salida,
             motivo_salida=empleado.motivo_salida,
             fecha_contratacion=empleado.fecha_contratacion,
@@ -178,7 +175,7 @@ def obtener_todos_los_empleados(db: Session = Depends(get_sync_db)):
         for empleado in empleados
     ]
 
-# ✅ Endpoint para obtener un empleado por ID
+#  Endpoint para obtener un empleado por ID
 @router.get("/empleados/{cod_empleado}", response_model=EmpleadoResponse)
 def obtener_empleado_por_id_endpoint(cod_empleado: int, db: Session = Depends(get_sync_db)):
     empleado = db.execute(
@@ -194,7 +191,7 @@ def obtener_empleado_por_id_endpoint(cod_empleado: int, db: Session = Depends(ge
     if not empleado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
 
-    # ✅ Convertimos la relación en un formato adecuado para la API
+    #  Convertimos la relación en un formato adecuado para la API
     return EmpleadoResponse(
         cod_empleado=empleado.cod_empleado,
         cod_persona=empleado.cod_persona,

@@ -117,16 +117,16 @@ async def consultar_permisos_por_modelo_crud(
     tipo_modelo: str,
     id_modelo: int
 ):
-    # Validar que el tipo de modelo esté permitido mediante regex
     validar_tipo_modelo(tipo_modelo)
 
     try:
         query = text("""
-            SELECT p.id, p.name, p.guard_name
-            FROM model_has_permissions mhp
-            JOIN permissions p ON mhp.permission_id = p.id
-            WHERE mhp.model_type = :tipo_modelo
-              AND mhp.model_id = :id_modelo
+            SELECT DISTINCT p.id, p.name, p.guard_name
+            FROM model_has_roles mhr
+            JOIN role_has_permissions rhp ON mhr.role_id = rhp.role_id
+            JOIN permissions p ON rhp.permission_id = p.id
+            WHERE mhr.model_type = :tipo_modelo
+              AND mhr.model_id = :id_modelo
         """)
 
         result = await db.execute(query, {
@@ -152,6 +152,7 @@ async def consultar_permisos_por_modelo_crud(
             status_code=400,
             detail=f"Error al consultar permisos del modelo: {str(e)}"
         )
+
     
 async def consultar_modelos_por_permiso_crud(
     db: AsyncSession,

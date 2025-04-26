@@ -24,7 +24,7 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     existing_user = result.scalars().first()
 
     # Generar el hash de la contraseña antes de asignarlo
-    hashed_password = hash_password(user_data.password)  # ✅ Se asegura de que siempre tenga un valor
+    hashed_password = hash_password(user_data.password)  # Se asegura de que siempre tenga un valor
 
     user_data.password = hashed_password
 
@@ -38,9 +38,12 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     await db.commit()
     await db.refresh(new_user)  # Obtener los datos actualizados desde la BD
 
-    # 🔹 Conversión explícita a UsuarioResponse antes de devolverlo
-    return UsuarioResponse.model_validate(new_user._dict_)
+    #  Conversión explícita a UsuarioResponse antes de devolverlo
+    return UsuarioResponse.model_validate(new_user.__dict__)
 
+async def obtener_usuario_por_username(db: AsyncSession, username: str):
+    result = await db.execute(select(Usuario).where(Usuario.username == username))
+    return result.scalar_one_or_none()
 
 
 # Obtener usuario por ID (asíncrono)
@@ -49,7 +52,7 @@ async def obtener_usuario_por_id(db: AsyncSession, id: int):
     return usuario if usuario else None
 
 
-# ✅ Actualizar usuario (asíncrono) con procedimiento almacenado
+# Actualizar usuario (asíncrono) con procedimiento almacenado
 async def actualizar_usuario(db: AsyncSession, id: int, user_data: dict):
     user = await db.get(Usuario, id)
     if not user:
@@ -57,20 +60,20 @@ async def actualizar_usuario(db: AsyncSession, id: int, user_data: dict):
 
     new_token = None  # Variable para guardar el nuevo token si cambia password o username
 
-    # 🔹 Si se proporciona una nueva contraseña, la encriptamos y generamos un nuevo token
+    #Si se proporciona una nueva contraseña, la encriptamos y generamos un nuevo token
     if "password" in user_data and user_data["password"]:
         user_data["password"] = hash_password(user_data["password"])
         new_token = create_access_token(data={"sub": user.username})  
 
-    # 🔹 Si el username cambia, generamos un nuevo token
+    # Si el username cambia, generamos un nuevo token
     if "username" in user_data and user.username != user_data["username"]:
         new_token = create_access_token(data={"sub": user_data["username"]})
 
-    # 🔹 Si hay un nuevo token, lo guardamos en user_data para enviarlo a PostgreSQL
+    # Si hay un nuevo token, lo guardamos en user_data para enviarlo a PostgreSQL
     if new_token:
         user_data["remember_token"] = new_token if isinstance(new_token, str) else new_token.get("access_token")
 
-    # 🔹 Llamar al procedimiento almacenado en PostgreSQL
+    # Llamar al procedimiento almacenado en PostgreSQL
     stmt = text("""
         CALL actualizar_usuario(
             :id, :nombre, :password, :username, :estado, :remember_token

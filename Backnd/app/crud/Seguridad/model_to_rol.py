@@ -4,7 +4,7 @@ from app.utils.utils import validar_tipo_modelo
 from fastapi import HTTPException
 from app.schemas.Seguridad.model_to_rol import AsignarRolRequest
 
-# ✅ Asignar rol a modelo usando procedimiento almacenado
+# Asignar rol a modelo usando procedimiento almacenado
 async def asignar_rol_a_modelo_crud(db: AsyncSession, datos: AsignarRolRequest):
     # 🔎 Validar si ya existe la asignación
     check_query = text("""

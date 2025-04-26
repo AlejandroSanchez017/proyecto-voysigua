@@ -1,0 +1,97 @@
+.nuevo-paquete-container {
+    padding: 20px;
+    background-color: #f0fdf4;
+  }
+  
+  .paquete-form {
+    max-width: 1000px;
+    margin: auto;
+    background: #eafbea;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .grupo {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border: none;
+    padding: 0;
+  }
+  
+  legend {
+    background: #a5d6a7;
+    color: #1b1b1b;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 6px 6px 0 0;
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+  }
+  
+  input, select, textarea {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  
+  .boton-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .boton-guardar,
+  .btn-regresar {
+    width: 200px;
+    height: 50px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  
+  /* Colores */
+  .boton-guardar {
+    background-color: #43d94e;
+    color: white;
+  }
+  
+  .boton-guardar:hover {
+    background-color: #2cb53a;
+  }
+  
+  .btn-regresar {
+    background-color: #d94e41;
+    color: white;
+  }
+  
+  .btn-regresar:hover {
+    background-color: #c0392b;
+  }
+  

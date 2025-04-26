@@ -95,6 +95,20 @@
     border: 2px solid #3ce759;
 }
 
+.resend-otp-button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  
+  .resend-otp-button:hover {
+    color: #0056b3;
+  }
+  
 /* Botón de Iniciar Sesión */
 button[type="submit"] {
     width: 100%;

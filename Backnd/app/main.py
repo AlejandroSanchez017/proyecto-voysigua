@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_sync_db, get_async_db  # ✅ Importamos las funciones correctas
 from sqlalchemy.sql import text
 from app.routers.Personas import personas, empleados
+from app.routers.mandados_paquetes import mandados
 from app.routers.Seguridad import (Usuario, roles as roles_router, permisos as permisos_router, 
                                    role_permissions as role_permissions_router, model_to_rol, 
                                    model_to_permission)
@@ -32,6 +33,7 @@ app.include_router(auth_routes, prefix="/auth")
 app.include_router(personas.router)
 app.include_router(empleados.router)
 app.include_router(Usuario.router)
+app.include_router(mandados.router)
 app.include_router(roles_router.router)
 app.include_router(permisos_router.router, tags=["Permisos"])
 app.include_router(role_permissions_router.router, tags=["Permisos-Roles"])

@@ -8,6 +8,7 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
+    guard_name = Column(String(100))
     status = Column(String(50))
 
     # Relación muchos-a-muchos con Permission

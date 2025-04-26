@@ -1,0 +1,116 @@
+.estado-paquete-container {
+    background-color: #e1fbe1;
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .tabla-paquetes {
+    width: 100%;
+    max-width: 800px; /* aumenta el ancho máximo */
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f1f1f1;
+    font-size: 16px; /* texto más grande */
+  }
+  
+  .tabla-paquetes th,
+  .tabla-paquetes td {
+    padding: 16px 20px; /* más espacio */
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  .tabla-paquetes th {
+    background-color: #a5d6a7;
+    color: #000;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .nombre-paquete {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .estado-paquete-container .contenido-tabla {
+    max-width: 1000px; /* más ancho para todo */
+    width: 100%;
+  }
+  
+  
+  .check-container {
+    display: inline-block;
+    position: relative;
+  }
+  
+  .check-container input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .custom-check {
+    width: 28px;
+    height: 28px;
+    border: 2px solid red;
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+  }
+  
+  .check-container input[type="checkbox"]:checked + .custom-check::after {
+    content: "✔";
+    color: red;
+    font-size: 22px;
+    position: absolute;
+    top: -2px;
+    left: 4px;
+  }
+  .boton-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .boton-guardar,
+  .btn-regresar {
+    width: 200px;
+    height: 50px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  
+  /* Colores */
+  .boton-guardar {
+    background-color: #43d94e;
+    color: white;
+  }
+  
+  .boton-guardar:hover {
+    background-color: #2cb53a;
+  }
+  
+  .btn-regresar {
+    background-color: #d94e41;
+    color: white;
+  }
+  
+  .btn-regresar:hover {
+    background-color: #c0392b;
+  }
+  

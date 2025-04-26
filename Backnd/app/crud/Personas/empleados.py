@@ -12,18 +12,64 @@ logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 # Insertar empleado llamando a procedimiento almacenado
+from sqlalchemy import text
+
 async def insertar_empleado(db: AsyncSession, empleado: EmpleadoCreate):
-    query = text("""
-        CALL insertar_empleado(:cod_persona, :cod_tipo_empleado, :cod_area, :cod_tipo_contrato, 
-                               :fecha_contratacion, :salario, :estado_empleado)
-    """)
     try:
-        await db.execute(query, empleado.model_dump(exclude_unset=True))
-        await db.commit()  # commit manual
+        # Preparar la consulta para llamar al procedimiento
+        query = text("""
+            CALL insertar_empleado(
+                :cod_persona, 
+                :cod_tipo_empleado, 
+                :cod_area, 
+                :cod_tipo_contrato, 
+                :fecha_contratacion, 
+                :salario, 
+                :estado_empleado,
+                :nuevo_id  -- parámetro OUT
+            )
+        """)
+
+        # Construir los parámetros, inicializando el OUT como None (no se usa directamente)
+        params = empleado.model_dump(exclude_unset=True)
+        params["nuevo_id"] = None
+
+        # Ejecutar el procedimiento
+        await db.execute(query, params)
+        await db.commit()
+
+        # Buscar el empleado recién insertado usando cod_persona (y traer el último)
+        result = await db.execute(
+            text("""
+                SELECT cod_empleado 
+                FROM tbl_empleado 
+                WHERE cod_persona = :cod_persona 
+                ORDER BY cod_empleado DESC 
+                LIMIT 1
+            """),
+            {"cod_persona": empleado.cod_persona}
+        )
+        row = result.fetchone()
+
+        if not row:
+            raise Exception("Empleado insertado pero no se pudo recuperar")
+
+        cod_empleado = row[0]
+        return await db.get(Empleado, cod_empleado)
+
+    except Exception as e:
+        await db.rollback()
+        raise e
+
+        # Obtener el objeto completo recién insertado
+        empleado_obj = await db.get(Empleado, cod_empleado)
+        return empleado_obj
+
     except Exception as e:
         await db.rollback()
         logger.error(f"Error al insertar empleado: {str(e)}")
         raise
+
 
 # Insertar tipo de empleado
 async def insertar_tipo_empleado(db: AsyncSession, tipo_empleado: NombreTipoEmpleadoCreate):

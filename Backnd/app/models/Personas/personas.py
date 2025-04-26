@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, CHAR, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database import Base  # ✅ Importación absoluta
+from app.database import Base  # Importación absoluta
 
 class TipoPersona(Base):
     __tablename__ = "tbl_tipo_persona"

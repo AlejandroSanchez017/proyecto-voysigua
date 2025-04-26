@@ -50,36 +50,67 @@ const LoginForm = ({ onLogin }) => {
     event.preventDefault();
     setError("");
     setMessage("");
-
+  
     try {
-        const response = await fetch("http://localhost:8000/verify-otp", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ 
-                username: username, 
-                otp_code: otp,  // Usa "otp_code" en lugar de "otp"
-                temp_token: tempToken 
-            }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.detail || "Error en la verificación del OTP");
-        }
-
-        setMessage("Autenticación exitosa");
-        sessionStorage.setItem("token", data.access_token);
-        onLogin(true);
-        navigate('/home'); 
+      const response = await fetch("http://localhost:8000/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          username: username, 
+          otp_code: otp,
+          temp_token: tempToken 
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.detail || "Error en la verificación del OTP");
+      }
+  
+      // GUARDAR TOKEN, USERNAME, ROLES Y PERMISOS
+      sessionStorage.setItem("token", data.access_token);
+      sessionStorage.setItem("username", username);
+  
+      //  Guardar roles y permisos en localStorage (o sessionStorage si prefieres)
+      localStorage.setItem("user_roles", JSON.stringify(data.user.roles));
+      localStorage.setItem("user_permissions", JSON.stringify(data.user.permissions));
+  
+      setMessage("Autenticación exitosa");
+      onLogin(true);
+      navigate('/home');
     } catch (error) {
-        setError(error.message);
+      setError(error.message);
     }
-};
+  };
 
-
+  const handleResendOtp = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/resend-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }), // Se reutiliza el username ya ingresado
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.detail || "Error al reenviar el código");
+      }
+  
+      setMessage(data.message);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setMessage(null);
+    }
+  };
+  
+  
   return (
     <div className="login-content-wrapper">
       <div className="login-card">
@@ -118,20 +149,13 @@ const LoginForm = ({ onLogin }) => {
               </button>
             </div>
 
-            <div className="remember-forgot">
-              <label>
-                <input type="checkbox" /> Recordar
-              </label>
-              <a href="/forgot-password">¿Olvidaste tu contraseña?</a>
-            </div>
-
             <button type="submit">Ingresar</button>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
             {message && <p style={{ color: "green" }}>{message}</p>}
 
             <div className="signup-link">
-              ¿No tienes una cuenta? <a href="/signup">Regístrate aquí</a>
+              ¿No tienes una cuenta? <a href="/nuevousuario">Regístrate aquí</a>
             </div>
           </form>
         ) : (
@@ -150,6 +174,13 @@ const LoginForm = ({ onLogin }) => {
             </div>
 
             <button type="submit">Verificar OTP</button>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              className="resend-otp-button"
+            >
+              Reenviar código
+            </button>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
             {message && <p style={{ color: "green" }}>{message}</p>}

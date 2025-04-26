@@ -38,14 +38,17 @@ class EmpleadoCreate(EmpleadoBase):
 class EmpleadoUpdate(EmpleadoUpdateBase):
     pass
 
-class EmpleadoResponse(EmpleadoBase):
-    cod_empleado: int
-
-    # Sobrescribimos los campos que en EmpleadoBase son int,
-    # para permitir que vengan como None si están NULL en la DB.
+class EmpleadoResponse(BaseModel):
+    cod_empleado: Optional[int] = None
+    cod_persona: Optional[int] = None
     cod_tipo_empleado: Optional[int] = None
     cod_area: Optional[int] = None
     cod_tipo_contrato: Optional[int] = None
+    fecha_salida: Optional[date] = None
+    motivo_salida: Optional[str] = None
+    fecha_contratacion: Optional[date] = None
+    salario: Optional[float] = None
+    estado_empleado: Optional[str] = None
 
     class Config:
         from_attributes = True

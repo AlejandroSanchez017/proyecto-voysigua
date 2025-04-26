@@ -32,21 +32,32 @@
   border-radius: 2px;
 }
 
+
 /* Barra de búsqueda con icono */
-.filter-input{
+.filtros {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  position: relative;
-  background: #f9f9f9;
+  margin-bottom: 20px;
+  padding-left: 60px;
+}
+
+.filtros input {
+  padding: 10px 16px;
+  border-radius: 12px;
   border: 2px solid #1B5E20;
-  border-radius: 25px;
-  padding: 12px 18px;
-  width: 100%;
-  max-width: 350px;
+  background-color: #f9f9f9;
+  color: #1B5E20;
+  font-size: 14px;
+  width: 250px;
   transition: all 0.3s ease;
 }
 
-.filter-input:hover {
+.filtros input::placeholder {
+  color: #6c757d;
+}
+
+.filtros input:hover {
   border-color: #145A32;
 }
 
@@ -93,15 +104,6 @@
   vertical-align: middle;
   word-wrap: break-word;
 }
-
-/* Ajuste específico para Remember Token */
-.table td.remember-token {
-  max-width: 400px;
-  overflow: visible;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
 /* Alternancia de colores en las filas */
 .table tr:nth-child(even) {
   background-color: #E8F5E9;
@@ -113,6 +115,16 @@
   transform: scale(1.01);
   transition: all 0.2s ease-in-out;
 }
+
+/* Ajuste específico para Remember Token */
+.table td.remember-token {
+  max-width: 400px;
+  overflow: visible;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+
 
 /*Botones*/
 /* 🎨 Botones de acción mejorados */

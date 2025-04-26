@@ -2,7 +2,11 @@ import smtplib
 import os
 from email.message import EmailMessage
 from dotenv import load_dotenv  # Cargar variables del .env
+import logging
+import smtplib
 
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger("email")
 # Cargar variables de entorno
 load_dotenv()
 
@@ -34,8 +38,13 @@ def enviar_email(email: str, otp_code: str):
         print(f"✅ [DEBUG] Código OTP enviado correctamente a {email}")
         return True
 
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"❌ Fallo autenticación SMTP: {e.smtp_error.decode()}")
+
     except smtplib.SMTPAuthenticationError:
         print("❌ [ERROR] Fallo en la autenticación del servidor SMTP. Revisa EMAIL_USER y EMAIL_PASS.")
     except smtplib.SMTPException as e:
         print(f"❌ [ERROR] Error al enviar el correo: {str(e)}")
     return False
+
+   

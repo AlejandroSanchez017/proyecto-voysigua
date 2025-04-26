@@ -1,0 +1,55 @@
+CREATE OR REPLACE FUNCTION insertar_empleado(
+    cod_persona INT,
+    cod_tipo_empleado INT,
+    cod_area INT,
+    cod_tipo_contrato INT,
+    fecha_contratacion DATE,
+    salario NUMERIC,
+    estado_empleado CHAR
+)
+RETURNS INT AS $$
+DECLARE
+    nuevo_id INT;
+BEGIN
+    INSERT INTO tbl_empleado (
+        cod_persona, cod_tipo_empleado, cod_area, cod_tipo_contrato,
+        fecha_contratacion, salario, estado_empleado
+    )
+    VALUES (
+        cod_persona, cod_tipo_empleado, cod_area, cod_tipo_contrato,
+        fecha_contratacion, salario, estado_empleado
+    )
+    RETURNING cod_empleado INTO nuevo_id;
+
+    RETURN nuevo_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+EMPLEADO CAMBIO DE PROCEDIMIENTO POR PROBLEMA DE CARGA EN EL FRONTEND
+--------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE insertar_persona(
+    IN cod_tipo_persona INT,
+    IN dni CHARACTER VARYING,
+    IN primer_nombre CHARACTER VARYING,
+    IN apellido CHARACTER VARYING,
+    IN fecha_nacimiento DATE,
+    IN sexo CHARACTER,
+    IN correo CHARACTER VARYING,
+    IN estado CHARACTER,
+    OUT nuevo_id INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO tbl_personas (
+        cod_tipo_persona, dni, primer_nombre, apellido,
+        fecha_nacimiento, sexo, correo, estado
+    )
+    VALUES (
+        cod_tipo_persona, dni, primer_nombre, apellido,
+        fecha_nacimiento, sexo, correo, estado
+    )
+    RETURNING cod_persona INTO nuevo_id;
+END;
+$$;

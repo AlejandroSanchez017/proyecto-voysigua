@@ -7,13 +7,40 @@ from app.models.Personas.personas import Persona, TipoPersona
 
 # Insertar persona usando procedimiento almacenado
 async def insertar_persona(db: AsyncSession, persona: PersonaCreate):
-    query = text("""
-        CALL insertar_persona(:cod_tipo_persona, :dni, :primer_nombre, :apellido, 
-                              :fecha_nacimiento, :sexo, :correo, :estado)
-    """)
-    async with db.begin():
-        await db.execute(query, persona.model_dump())
+    try:
+        # Paso 1: Ejecutar el procedimiento
+        query = text("""
+            CALL insertar_persona(
+                :cod_tipo_persona, :dni, :primer_nombre, :apellido,
+                :fecha_nacimiento, :sexo, :correo, :estado, :nuevo_id
+            )
+        """)
+
+        params = persona.model_dump(exclude_unset=True)
+        params["nuevo_id"] = None  # OUT ignorado, pero necesario para el CALL
+
+        await db.execute(query, params)
         await db.commit()
+
+        # Paso 2: Buscar la persona recién insertada usando el DNI
+        result = await db.execute(
+            text("SELECT cod_persona FROM tbl_personas WHERE dni = :dni"),
+            {"dni": persona.dni}
+        )
+        row = result.fetchone()
+
+        if row:
+            cod_persona = row[0]  # Acceder por índice porque es una tupla
+            return await db.get(Persona, cod_persona)
+
+        raise Exception("Persona insertada, pero no se pudo recuperar.")
+
+    except Exception as e:
+        await db.rollback()
+        raise e
+
+    
+
 
 # Actualizar persona
 async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: PersonaUpdate):
@@ -46,7 +73,7 @@ async def actualizar_persona(db: AsyncSession, cod_persona: int, persona: Person
 
     except IntegrityError as e:
         await db.rollback()
-        raise e  # 🔥 Esto permite que el router capture correctamente el tipo de error
+        raise e  #  Esto permite que el router capture correctamente el tipo de error
 
     except Exception as e:
         await db.rollback()
@@ -76,7 +103,7 @@ async def obtener_todas_las_personas(db: AsyncSession, skip: int = 0, limit: int
 async def insertar_tipo_persona(db: AsyncSession, tipo_persona: TipoPersonaCreate):
     db_tipo_persona = TipoPersona(tipo_persona=tipo_persona.tipo_persona)
     db.add(db_tipo_persona)
-    await db.commit()  # ✅ Hacemos commit aquí sin usar `async with db.begin()`
+    await db.commit()  #  Hacemos commit aquí sin usar `async with db.begin()`
     await db.refresh(db_tipo_persona)
     return db_tipo_persona
 
