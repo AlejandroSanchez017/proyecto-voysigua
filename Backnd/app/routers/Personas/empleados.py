@@ -1,19 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
+from sqlalchemy import exists, and_
 from app.database import get_async_db, get_sync_db  # ✅ Importamos ambas funciones correctamente
 from sqlalchemy.exc import IntegrityError
 from app.utils.utils import extraer_campo_foreign_key, extraer_campo_null
-from app.models.Personas.empleados import Empleado as EmpleadoModel  # ✅ Corrección
+from app.models.Personas.empleados import Empleado as EmpleadoModel, VehiculoMotorista  # ✅ Corrección
 from app.schemas.Personas.empleados import (
     EmpleadoCreate, EmpleadoResponse, NombreTipoEmpleadoCreate, TipoContrato,
-    AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate, NombreTipoEmpleado, Areas as AreasSchema
+    AreasCreate, TipoContratoCreate, EmpleadoDespedir, EmpleadoUpdate, NombreTipoEmpleado, Areas as AreasSchema, MarcaCreate,
+    MarcaUpdate, MarcaResponse, TipoTransporteCreate, TipoTransporteUpdate, TipoTransporteResponse, VehiculoMotoristaCreate,
+    VehiculoMotoristaUpdate, VehiculoMotoristaResponse
 )
 from app.crud.Personas.empleados import (
-    insertar_empleado, actualizar_empleado_crud, despedir_empleado_crud, eliminar_empleado, insertar_tipo_empleado, obtener_tipos_empleado, 
-    eliminar_tipo_empleado, insertar_area, obtener_areas, eliminar_area, insertar_tipo_contrato, obtener_tipos_contrato,
-    eliminar_tipo_contrato
+    insertar_empleado, actualizar_empleado_crud, despedir_empleado_crud, eliminar_empleado, insertar_tipo_empleado, 
+    obtener_tipos_empleado, eliminar_tipo_empleado, insertar_area, obtener_areas, eliminar_area, insertar_tipo_contrato, obtener_tipos_contrato,
+    eliminar_tipo_contrato, insertar_marca, modificar_marca, eliminar_marca, obtener_marcas, obtener_marca_por_id,
+    insertar_tipo_transporte, modificar_tipo_transporte, eliminar_tipo_transporte, obtener_tipos_transporte, 
+    obtener_tipo_transporte_por_id, insertar_vehiculo_motorista, actualizar_vehiculo_motorista_crud, 
+    eliminar_vehiculo_motorista, obtener_vehiculos_motorista, obtener_vehiculo_motorista_por_id, obtener_vehiculos_por_estado,
+    obtener_vehiculos_por_persona
 )
 from typing import List
 import logging
@@ -297,4 +304,281 @@ async def borrar_tipo_contrato(cod_tipo_contrato: int, db: AsyncSession = Depend
         return {"message": "Tipo de contrato eliminado exitosamente"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.post("/marcas/", response_model=dict)
+async def crear_marca(
+    marca: MarcaCreate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await insertar_marca(db, marca)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al insertar la marca.")
 
+@router.put("/marcas/{cod_marca}", response_model=dict)
+async def actualizar_marca(
+    cod_marca: int,
+    marca: MarcaUpdate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await modificar_marca(db, cod_marca, marca)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al modificar la marca.")
+    
+@router.delete("/marcas/{cod_marca}", response_model=dict)
+async def eliminar_marca_api(
+    cod_marca: int,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await eliminar_marca(db, cod_marca)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="No se pudo eliminar la marca.")
+    
+@router.get("/marcas", response_model=List[MarcaResponse])
+def listar_marcas(
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: int = Query(10, gt=0, description="Cantidad máxima de registros a devolver"),
+    db: Session = Depends(get_sync_db)
+):
+    return obtener_marcas(db, skip=skip, limit=limit)
+
+@router.get("/marca/{cod_marca}", response_model=MarcaResponse)
+def obtener_marca(
+    cod_marca: int,
+    db: Session = Depends(get_sync_db)
+):
+    return obtener_marca_por_id(db, cod_marca)
+
+@router.post("/tipos_transporte/", response_model=dict)
+async def crear_tipo_transporte(
+    tipo: TipoTransporteCreate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await insertar_tipo_transporte(db, tipo)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al insertar el tipo de transporte.")
+    
+@router.put("/tipos_transporte/{cod_tipo_transporte}", response_model=dict)
+async def actualizar_tipo_transporte(
+    cod_tipo_transporte: int,
+    tipo: TipoTransporteUpdate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await modificar_tipo_transporte(db, cod_tipo_transporte, tipo)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al modificar el tipo de transporte.")
+    
+@router.delete("/tipos_transporte/{cod_tipo_transporte}", response_model=dict)
+async def eliminar_tipo_transporte_api(
+    cod_tipo_transporte: int,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        return await eliminar_tipo_transporte(db, cod_tipo_transporte)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="No se pudo eliminar el tipo de transporte.")
+    
+@router.get("/tipos_transporte", response_model=List[TipoTransporteResponse])
+def listar_tipos_transporte(
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: int = Query(10, gt=0, description="Cantidad máxima de registros a devolver"),
+    db: Session = Depends(get_sync_db)
+):
+    return obtener_tipos_transporte(db, skip=skip, limit=limit)
+
+@router.get("/tipos_transporte/{cod_tipo_transporte}", response_model=TipoTransporteResponse)
+def obtener_tipo_transporte(
+    cod_tipo_transporte: int,
+    db: Session = Depends(get_sync_db)
+):
+    return obtener_tipo_transporte_por_id(db, cod_tipo_transporte)
+
+
+@router.post("/vehiculo_motorista/", response_model=dict)
+async def crear_vehiculo_motorista(
+    vehiculo: VehiculoMotoristaCreate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    try:
+        await insertar_vehiculo_motorista(db, vehiculo)
+        return {"message": "Vehículo del motorista insertado exitosamente"}
+
+    except IntegrityError as e:
+        error_msg = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error(f"Error de integridad al insertar vehículo: {type(e.orig)} - {error_msg}")
+
+        # 🔍 Clave foránea inválida
+        if "foreign key" in error_msg.lower() or "llave foránea" in error_msg.lower():
+            campo = extraer_campo_foreign_key(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El valor ingresado para '{campo}' no existe en la base de datos. Verifica que sea válido."
+            )
+
+        # ❗ Placa duplicada
+        if (
+            "duplicate key" in error_msg.lower() and "numero_placa" in error_msg.lower()
+        ) or "tbl_vehiculos_motorista_numero_placa_key" in error_msg.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="El número de placa ingresado ya está registrado. Debe ser único."
+            )
+
+        # ❗ Chasis duplicado
+        if (
+            "duplicate key" in error_msg.lower() and "chasis" in error_msg.lower()
+        ) or "tbl_vehiculos_motorista_chasis_key" in error_msg.lower() or "unique_chasis" in error_msg.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="El número de chasis ingresado ya está registrado. Debe ser único."
+            )
+
+        # ⚠️ Campo obligatorio omitido
+        if "null value in column" in error_msg.lower():
+            campo = extraer_campo_null(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail=f"El campo '{campo}' es obligatorio y no puede estar vacío."
+            )
+
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
+    except Exception as e:
+        logger.error(f"Error general al insertar vehículo: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.put("/vehiculo_motorista/{cod_vehiculo}", response_model=dict)
+async def modificar_vehiculo_motorista(
+    cod_vehiculo: int,
+    vehiculo: VehiculoMotoristaUpdate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    # Validar existencia del vehículo
+    result = await db.execute(
+        select(VehiculoMotorista).where(VehiculoMotorista.cod_vehiculo == cod_vehiculo)
+    )
+    existe = result.scalar_one_or_none()
+    if not existe:
+        raise HTTPException(status_code=404, detail=f"No se encontró el vehículo con ID {cod_vehiculo}")
+
+    # Validar número de placa duplicado
+    placa_duplicada = await db.execute(
+        select(exists().where(
+            and_(
+                VehiculoMotorista.numero_placa == vehiculo.numero_placa,
+                VehiculoMotorista.cod_vehiculo != cod_vehiculo
+            )
+        ))
+    )
+    if placa_duplicada.scalar():
+        raise HTTPException(
+            status_code=400,
+            detail="El número de placa ingresado ya está registrado. Debe ser único."
+        )
+
+    # Validar número de chasis duplicado
+    chasis_duplicado = await db.execute(
+        select(exists().where(
+            and_(
+                VehiculoMotorista.chasis == vehiculo.chasis,
+                VehiculoMotorista.cod_vehiculo != cod_vehiculo
+            )
+        ))
+    )
+    if chasis_duplicado.scalar():
+        raise HTTPException(
+            status_code=400,
+            detail="El número de chasis ingresado ya está registrado. Debe ser único."
+        )
+
+    # Ejecutar procedimiento
+    try:
+        return await actualizar_vehiculo_motorista_crud(db, cod_vehiculo, vehiculo)
+    except Exception as e:
+        logger.error(f"Error general al actualizar vehículo: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error al actualizar el vehículo.")
+    
+@router.delete("/vehiculo_motorista/{cod_vehiculo}", response_model=dict)
+async def eliminar_vehiculo_motorista_api(
+    cod_vehiculo: int,
+    db: AsyncSession = Depends(get_async_db)
+):
+    # Verificar si el vehículo existe
+    result = await db.execute(
+        select(VehiculoMotorista).where(VehiculoMotorista.cod_vehiculo == cod_vehiculo)
+    )
+    existe = result.scalar_one_or_none()
+    if not existe:
+        raise HTTPException(status_code=404, detail=f"No se encontró el vehículo con ID {cod_vehiculo}")
+
+    # Eliminar
+    try:
+        return await eliminar_vehiculo_motorista(db, cod_vehiculo)
+    except Exception as e:
+        logger.error(f"Error al eliminar vehículo: {str(e)}")
+        raise HTTPException(status_code=400, detail="No se pudo eliminar el vehículo.")
+    
+@router.get("/vehiculo_motorista", response_model=List[VehiculoMotoristaResponse])
+def listar_vehiculos_motorista(
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: int = Query(10, gt=0, le=100, description="Máximo de registros a retornar"),
+    db: Session = Depends(get_sync_db)
+):
+    vehiculos = obtener_vehiculos_motorista(db, skip=skip, limit=limit)
+    if not vehiculos:
+        raise HTTPException(status_code=404, detail="No se encontraron vehículos registrados")
+    return vehiculos
+
+@router.get("/vehiculo_motorista/{cod_vehiculo}", response_model=VehiculoMotoristaResponse)
+def obtener_vehiculo_motorista(
+    cod_vehiculo: int,
+    db: Session = Depends(get_sync_db)
+):
+    vehiculo = obtener_vehiculo_motorista_por_id(db, cod_vehiculo)
+    if not vehiculo:
+        raise HTTPException(status_code=404, detail=f"No se encontró el vehículo con ID {cod_vehiculo}")
+    return vehiculo
+
+@router.get("/vehiculo_motorista/estado/{estado}", response_model=List[VehiculoMotoristaResponse])
+def listar_vehiculos_por_estado(
+    estado: str,
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: int = Query(10, gt=0, le=100, description="Máximo de registros a retornar"),
+    db: Session = Depends(get_sync_db)
+):
+    estado = estado.upper()
+    if estado not in ("A", "I"):
+        raise HTTPException(status_code=400, detail="El estado debe ser 'A' (activo) o 'I' (inactivo)")
+
+    vehiculos = obtener_vehiculos_por_estado(db, estado, skip, limit)
+    if not vehiculos:
+        raise HTTPException(status_code=404, detail=f"No se encontraron vehículos con estado '{estado}'")
+    return vehiculos
+
+@router.get("/vehiculo_motorista/persona/{cod_persona}", response_model=List[VehiculoMotoristaResponse])
+def listar_vehiculos_por_persona(
+    cod_persona: int,
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: int = Query(10, gt=0, le=100, description="Máximo de registros a retornar"),
+    db: Session = Depends(get_sync_db)
+):
+    vehiculos = obtener_vehiculos_por_persona(db, cod_persona, skip, limit)
+    if not vehiculos:
+        raise HTTPException(status_code=404, detail=f"No se encontraron vehículos registrados para la persona con ID {cod_persona}")
+    return vehiculos
