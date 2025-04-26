@@ -14,4 +14,3 @@ class Usuario(Base):
     primera_vez = Column(Boolean, default=True, nullable=False)
     fecha_vencimiento = Column(Date, nullable=False)
     otp_secret = Column(String, nullable=True)
-    otp_configurado = Column(Boolean, default=False, nullable=False)
