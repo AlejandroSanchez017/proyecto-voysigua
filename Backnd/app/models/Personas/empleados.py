@@ -41,3 +41,27 @@ class Empleado(Base):
     tipo_empleado = relationship("NombreTipoEmpleado", back_populates="empleados", passive_deletes=True)
     area = relationship("Areas", back_populates="empleados", passive_deletes=True)
     contrato = relationship("TipoContrato", back_populates="empleados", passive_deletes=True)
+
+class Marca(Base):
+    __tablename__ = "tbl_marcas"
+
+    cod_marca = Column(Integer, primary_key=True, index=True)
+    nombre_marca = Column(String(50), nullable=False, unique=True)
+
+class TipoTransporte(Base):
+    __tablename__ = "tbl_tipo_transporte"
+
+    cod_tipo_transporte = Column(Integer, primary_key=True, index=True)
+    nombre_tipo_transporte = Column(String(50), nullable=False, unique=True)
+
+class VehiculoMotorista(Base):
+    __tablename__ = "tbl_vehiculos_motorista"
+
+    cod_vehiculo = Column(Integer, primary_key=True, index=True)
+    cod_persona = Column(Integer, ForeignKey("tbl_personas.cod_persona", ondelete="CASCADE"), nullable=False)
+    cod_tipo_transporte = Column(Integer, ForeignKey("tbl_tipo_transporte.cod_tipo_transporte", ondelete="RESTRICT"), nullable=False)
+    modelo_transporte = Column(String(50), nullable=False)
+    numero_placa = Column(String(20), nullable=False, unique=True)
+    chasis = Column(String(50), nullable=False)
+    cod_marca = Column(Integer, ForeignKey("tbl_marcas.cod_marca", ondelete="RESTRICT"), nullable=False)
+    estado = Column(CHAR(1), nullable=False)  # 'A' o 'I'

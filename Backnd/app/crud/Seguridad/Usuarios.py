@@ -23,8 +23,11 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
     result = await db.execute(select(Usuario).filter(Usuario.username == user_data.username))
     existing_user = result.scalars().first()
 
+    if existing_user:
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")  # ✅ Esto faltaba
+
     # Generar el hash de la contraseña antes de asignarlo
-    hashed_password = hash_password(user_data.password)  # ✅ Se asegura de que siempre tenga un valor
+    hashed_password = hash_password(user_data.password)
 
     user_data.password = hashed_password
 
@@ -36,12 +39,13 @@ async def insertar_usuario(db: AsyncSession, user_data: UsuarioCreate):
 
     db.add(new_user)
     await db.commit()
-    await db.refresh(new_user)  # Obtener los datos actualizados desde la BD
+    await db.refresh(new_user)
 
-    # 🔹 Conversión explícita a UsuarioResponse antes de devolverlo
-    return UsuarioResponse.model_validate(new_user._dict_)
-
-
+    return {
+        "id": new_user.id,
+        "username": new_user.username,
+        "otp_secret": new_user.otp_secret
+    }
 
 # Obtener usuario por ID (asíncrono)
 async def obtener_usuario_por_id(db: AsyncSession, id: int):
@@ -55,43 +59,47 @@ async def actualizar_usuario(db: AsyncSession, id: int, user_data: dict):
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    new_token = None  # Variable para guardar el nuevo token si cambia password o username
+    new_token = None  # Nuevo token si cambia password o username
 
-    # 🔹 Si se proporciona una nueva contraseña, la encriptamos y generamos un nuevo token
+    # 🔐 Si se cambia password, la encriptamos y generamos un nuevo token
     if "password" in user_data and user_data["password"]:
         user_data["password"] = hash_password(user_data["password"])
-        new_token = create_access_token(data={"sub": user.username})  
+        new_token = create_access_token(data={"sub": user.username})
 
-    # 🔹 Si el username cambia, generamos un nuevo token
+    # 👤 Si cambia el username, generamos nuevo token
     if "username" in user_data and user.username != user_data["username"]:
         new_token = create_access_token(data={"sub": user_data["username"]})
 
-    # 🔹 Si hay un nuevo token, lo guardamos en user_data para enviarlo a PostgreSQL
+    # 🧠 Si hay token nuevo, lo usamos como remember_token
     if new_token:
         user_data["remember_token"] = new_token if isinstance(new_token, str) else new_token.get("access_token")
 
-    # 🔹 Llamar al procedimiento almacenado en PostgreSQL
+    # ✅ Asegurar que cod_persona esté presente aunque sea None (evita error de parámetro faltante)
+    if "cod_persona" not in user_data:
+        user_data["cod_persona"] = None
+
+    # 🛠 Ejecutar el procedimiento almacenado
     stmt = text("""
         CALL actualizar_usuario(
-            :id, :nombre, :password, :username, :estado, :remember_token
+            :id, :cod_persona, :nombre, :password, :username, :estado, :remember_token
         )
     """)
 
     await db.execute(stmt, {
         "id": id,
+        "cod_persona": user_data.get("cod_persona"),
         "nombre": user_data.get("nombre"),
         "password": user_data.get("password"),
         "username": user_data.get("username"),
         "estado": user_data.get("estado"),
-        "remember_token": user_data.get("remember_token")  # Ahora lo enviamos al procedimiento
+        "remember_token": user_data.get("remember_token")
     })
 
     await db.commit()
     return {
-        "message": "Usuario actualizado correctamente",
-        "new_token": user_data.get("remember_token") if new_token else "No se generó un nuevo token"
+    "message": "Usuario actualizado correctamente",
+    "username": user_data.get("username", user.username)  # Usa el nuevo si se envió, o el anterior si no cambió
     }
-
 
 # Eliminar usuario (asíncrono)
 async def eliminar_usuario(db: AsyncSession, id: int):
