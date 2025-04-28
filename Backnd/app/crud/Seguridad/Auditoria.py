@@ -2,14 +2,13 @@ from sqlalchemy.orm import Session
 from app.models.Seguridad.Auditoria import Auditoria
 from typing import List
 
-def obtener_registros_auditoria(db: Session, skip: int = 0, limit: int = 10) -> List[Auditoria]:
+def obtener_registros_auditoria(db: Session) -> List[Auditoria]:
     return (
         db.query(Auditoria)
           .order_by(Auditoria.fecha.desc())
-          .offset(skip)
-          .limit(limit)
           .all()
     )
+
 
 def obtener_auditoria_por_id(db: Session, id_auditoria: int) -> Auditoria | None:
     return (

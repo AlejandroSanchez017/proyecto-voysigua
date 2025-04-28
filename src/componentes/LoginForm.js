@@ -50,37 +50,40 @@ const LoginForm = ({ onLogin }) => {
     event.preventDefault();
     setError("");
     setMessage("");
-  
+
     try {
       const response = await fetch("http://localhost:8000/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          username: username, 
+        body: JSON.stringify({
+          username: username,
           otp_code: otp,
-          temp_token: tempToken 
+          temp_token: tempToken,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.detail || "Error en la verificación del OTP");
       }
-  
+
       // GUARDAR TOKEN, USERNAME, ROLES Y PERMISOS
       sessionStorage.setItem("token", data.access_token);
       sessionStorage.setItem("username", username);
-  
+
       //  Guardar roles y permisos en localStorage (o sessionStorage si prefieres)
       localStorage.setItem("user_roles", JSON.stringify(data.user.roles));
-      localStorage.setItem("user_permissions", JSON.stringify(data.user.permissions));
-  
+      localStorage.setItem(
+        "user_permissions",
+        JSON.stringify(data.user.permissions)
+      );
+
       setMessage("Autenticación exitosa");
       onLogin(true);
-      navigate('/home');
+      navigate("/home");
     } catch (error) {
       setError(error.message);
     }
@@ -95,13 +98,13 @@ const LoginForm = ({ onLogin }) => {
         },
         body: JSON.stringify({ username }), // Se reutiliza el username ya ingresado
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.detail || "Error al reenviar el código");
       }
-  
+
       setMessage(data.message);
       setError(null);
     } catch (err) {
@@ -109,8 +112,7 @@ const LoginForm = ({ onLogin }) => {
       setMessage(null);
     }
   };
-  
-  
+
   return (
     <div className="login-content-wrapper">
       <div className="login-card">
@@ -121,33 +123,33 @@ const LoginForm = ({ onLogin }) => {
         {step === 1 ? (
           <form onSubmit={handleLogin}>
             <h1>Iniciar Sesión</h1>
-            <div className="input_box">
+            <div className="input_box password-input">
               <input
                 type="text"
-                placeholder="Nombre de Usuario"
+                placeholder=" Nombre de Usuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
               <FaUser className="icon" />
             </div>
-            <div className="input_box">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <FaLock className="icon" />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="toggle-password"
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-            </div>
+            <div className="input_box password-input">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Contraseña"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
+  <FaLock className="icon" aria-hidden="true" />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="toggle-password"
+  >
+    {showPassword ? <FaEyeSlash /> : <FaEye />}
+  </button>
+</div>
 
             <button type="submit">Ingresar</button>
 
@@ -162,7 +164,7 @@ const LoginForm = ({ onLogin }) => {
           <form onSubmit={handleVerifyOtp}>
             <h1>Verificación OTP</h1>
             <p>Introduce el código que enviamos a tu correo:</p>
-            <div className="input_box">
+            <div className="input_box password-input">
               <input
                 type="text"
                 placeholder="Código OTP"

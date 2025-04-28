@@ -177,9 +177,13 @@ def obtener_tipo_direccion(
     return obtener_tipo_direccion_por_id(db, cod_tipo_direccion)
     
 @router.post("/direccion/", response_model=dict)
-async def crear_direccion(direccion: DireccionCreate, db: AsyncSession = Depends(get_async_db)):
+async def crear_direccion(
+    direccion: DireccionCreate,
+    cod_persona: int = Query(..., description="ID de la persona asociada"),
+    db: AsyncSession = Depends(get_async_db),
+):
     try:
-        await insertar_direccion(db, direccion)
+        await insertar_direccion(db, direccion, cod_persona)  # ✅ PASAMOS cod_persona
         return {"message": "Dirección insertada exitosamente"}
 
     except IntegrityError as e:
@@ -266,7 +270,7 @@ async def eliminar_direccion(
         logger.error(f"Error al eliminar dirección: {str(e)}")
         raise HTTPException(status_code=500, detail="Error al eliminar la dirección.")
     
-@router.get("/direcciones", response_model=List[DireccionResponse])
+@router.get("/direcciones/", response_model=List[DireccionResponse])
 def listar_direcciones(
     skip: int = Query(0, ge=0, description="Registros a omitir"),
     limit: int = Query(10, gt=0, description="Cantidad máxima de registros a devolver"),

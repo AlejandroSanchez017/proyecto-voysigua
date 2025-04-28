@@ -10,11 +10,9 @@ router = APIRouter()
 
 @router.get("/auditoria/", response_model=List[AuditoriaResponse])
 def listar_auditoria(
-    skip: int = Query(0, ge=0, description="Registros a omitir"),
-    limit: int = Query(10, gt=0, le=100, description="Máximo de registros a retornar"),
     db: Session = Depends(get_sync_db)
 ):
-    registros = obtener_registros_auditoria(db, skip, limit)
+    registros = obtener_registros_auditoria(db)
     if not registros:
         raise HTTPException(status_code=404, detail="No se encontraron registros de auditoría")
     return registros

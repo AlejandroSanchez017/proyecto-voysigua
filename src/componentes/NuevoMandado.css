@@ -34,23 +34,31 @@
   
   /* Estilo común de secciones */
   .seccion {
-    background-color: #f0fdf4;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    background-color: #e8f6ec; /* Fondo verde claro (el mismo que quieres) */
     padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
+  /* Estilo para los títulos de las secciones */
   .seccion h3 {
-    background-color: #a5d6a7;
-    color: #1b1b1b;
-    font-size: 18px;
-    font-weight: bold;
+    background-color: #a5d6a7; /* Verde más fuerte para el título */
+    margin: -20px -20px 20px -20px; /* Que el fondo cubra todo */
+    padding: 15px;
     text-align: center;
-    margin: -20px -20px 20px -20px;
-    padding: 12px;
-    border-radius: 10px 10px 0 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #2e7d32;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
   }
   
+  body {
+      background-color: #e8f6ec; /* Fondo verde claro para toda la página */
+      margin: 0;
+      font-family: 'Arial', sans-serif; /* (Opcional) Para mantener todo limpio */
+    }
   /* Campos */
   .seccion label {
     font-weight: 500;

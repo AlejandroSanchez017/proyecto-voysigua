@@ -18,11 +18,12 @@ class TipoTelefonoResponse(TipoTelefonoBase):
 
 class TelefonoBase(BaseModel):
     cod_persona: int = Field(..., description="Código de la persona propietaria del teléfono")
-    telefono_principal: str = Field(..., min_length=4, max_length=15, description="Número principal del teléfono")
-    exten: Optional[int] = Field(None, description="Extensión del teléfono (opcional)")
-    codigo_area: int = Field(..., description="Código de área del teléfono")
-    cod_tipo_telefono: int = Field(..., description="Código del tipo de teléfono (Ej: móvil, oficina)")
-    estado: str = Field(..., pattern="^(A|I)$", description="Estado del teléfono (A=Activo, I=Inactivo)")
+    telefono_principal: str = Field(..., min_length=4, max_length=15, description="Número principal")
+    exten: Optional[int] = Field(None, description="Extensión telefónica")
+    codigo_area: int = Field(..., description="Código de área")
+    cod_tipo_telefono: int = Field(..., description="Código tipo teléfono")
+    estado: str = Field(..., pattern="^(A|I)$", description="Estado del teléfono")
+
 
 class TelefonoCreate(TelefonoBase):
     pass

@@ -167,3 +167,19 @@ def obtener_todos_los_tipos_persona(db: Session = Depends(get_sync_db)):
 
     # ✅ Convertimos los resultados de SQLAlchemy a Pydantic
     return [TipoPersona.model_validate(tp) for tp in tipos_persona]
+
+
+@router.get("/personas/", response_model=List[PersonaResponse])
+async def listar_personas(db: AsyncSession = Depends(get_async_db)):
+    try:
+        result = await db.execute(select(PersonaModel))
+        personas = result.scalars().all()
+
+        if not personas:
+            raise HTTPException(status_code=404, detail="No hay personas registradas.")
+
+        return personas
+
+    except Exception as e:
+        logger.error(f"Error al listar personas: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al consultar personas.")

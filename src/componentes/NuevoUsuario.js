@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaArrowLeft } from "react-icons/fa";
 import "./NuevoUsuario.css";
-import Adminlte from "./adminlte";
 
 const NuevoUsuario = () => {
+  const navigate = useNavigate();
+
+  const [personas, setPersonas] = useState([]);
   const [formData, setFormData] = useState({
     cod_persona: "",
     nombre: "",
@@ -14,40 +18,95 @@ const NuevoUsuario = () => {
     fecha_vencimiento: "",
   });
 
+  useEffect(() => {
+    const fetchPersonas = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/personas/");
+        const data = await response.json();
+        setPersonas(data);
+      } catch (error) {
+        console.error("Error al cargar personas:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error al cargar personas",
+          text: "Hubo un problema al cargar las personas. Intenta más tarde.",
+        });
+      }
+    };
+
+    fetchPersonas();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+
+    if (name === "cod_persona") {
+      const personaSeleccionada = personas.find(
+        (p) => p.cod_persona === parseInt(value)
+      );
+      setFormData((prev) => ({
+        ...prev,
+        cod_persona: value,
+        nombre: personaSeleccionada
+          ? `${personaSeleccionada.primer_nombre} ${personaSeleccionada.apellido}`
+          : "",
+      }));
+    } else if (type === "checkbox") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const parsedData = {
-        ...formData,
-        cod_persona: parseInt(formData.cod_persona),
-      };
+      Swal.fire({
+        title: "Guardando datos...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
       const response = await fetch("http://localhost:8000/usuarios/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(parsedData),
+        body: JSON.stringify({
+          ...formData,
+          cod_persona: parseInt(formData.cod_persona),
+        }),
       });
 
       if (!response.ok) {
+        if (response.status === 422) {
+          throw new Error("Por favor completa todos los campos obligatorios.");
+        }
         const errorDetails = await response.text();
-        throw new Error(errorDetails || "Error al crear el usuario");
+        throw new Error(errorDetails || "Error al crear el usuario.");
       }
+
+      Swal.close();
 
       Swal.fire({
         icon: "success",
-        title: "Usuario creado",
-        text: "El usuario ha sido creado correctamente.",
+        title: "¡Usuario creado exitosamente!",
+        text: "El usuario ha sido registrado correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
       });
+
+      setTimeout(() => {
+        navigate("/"); // 🚀 Redirige a la página principal después de 2s
+      }, 2000);
 
       setFormData({
         cod_persona: "",
@@ -59,18 +118,22 @@ const NuevoUsuario = () => {
         fecha_vencimiento: "",
       });
     } catch (error) {
+      Swal.close();
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.message,
+        text: error.message || "No se pudo guardar el usuario.",
       });
     }
   };
 
+  const handleRegresar = () => {
+    navigate("/");
+  };
+
   return (
     <div>
-      <Adminlte />
-      <div className="Content-Wrapper">
+      <div className="content-wrapper">
         <h1> </h1>
         <section className="container-fluid">
           <div className="usuario-form-container">
@@ -79,12 +142,23 @@ const NuevoUsuario = () => {
                 <legend>Agregar Usuario</legend>
 
                 <label>Código de Persona:</label>
-                <input
+                <select
                   name="cod_persona"
-                  type="number"
                   value={formData.cod_persona}
                   onChange={handleChange}
-                />
+                  className="form-control"
+                >
+                  <option value="">Seleccione una persona</option>
+                  {personas.map((persona) => (
+                    <option
+                      key={persona.cod_persona}
+                      value={persona.cod_persona}
+                    >
+                      {persona.cod_persona} - {persona.primer_nombre}{" "}
+                      {persona.apellido}
+                    </option>
+                  ))}
+                </select>
 
                 <label>Nombre:</label>
                 <input
@@ -92,6 +166,8 @@ const NuevoUsuario = () => {
                   type="text"
                   value={formData.nombre}
                   onChange={handleChange}
+                  className="form-control"
+                  readOnly
                 />
 
                 <label>Nombre de Usuario:</label>
@@ -100,6 +176,7 @@ const NuevoUsuario = () => {
                   type="text"
                   value={formData.username}
                   onChange={handleChange}
+                  className="form-control"
                 />
 
                 <label>Contraseña:</label>
@@ -108,6 +185,7 @@ const NuevoUsuario = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
+                  className="form-control"
                 />
 
                 <label>Estado:</label>
@@ -115,6 +193,7 @@ const NuevoUsuario = () => {
                   name="estado"
                   value={formData.estado}
                   onChange={handleChange}
+                  className="form-control"
                 >
                   <option value={1}>Activo</option>
                   <option value={0}>Inactivo</option>
@@ -134,11 +213,21 @@ const NuevoUsuario = () => {
                   type="date"
                   value={formData.fecha_vencimiento}
                   onChange={handleChange}
+                  className="form-control"
                 />
 
-                <button className="boton-guardar-usuario" type="submit">
-                  Guardar Usuario
-                </button>
+                <div className="botones-acciones">
+                  <button type="submit" className="boton-guardar">
+                    Guardar Usuario
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-regresar"
+                    onClick={handleRegresar}
+                  >
+                    <FaArrowLeft /> Regresar
+                  </button>
+                </div>
               </fieldset>
             </form>
           </div>

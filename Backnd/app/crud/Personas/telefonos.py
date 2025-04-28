@@ -92,7 +92,7 @@ async def obtener_tipo_telefono_por_id(db: AsyncSession, cod_tipo_telefono: int)
         raise HTTPException(status_code=404, detail=f"No se encontró el tipo de teléfono con ID {cod_tipo_telefono}")
     return tipo
 
-async def insertar_telefono(db: AsyncSession, telefono: TelefonoCreate):
+async def insertar_telefono(db: AsyncSession, telefono: TelefonoCreate, cod_persona: int):
     query = text("""
         CALL insertar_telefono(
             :_cod_persona,
@@ -105,7 +105,7 @@ async def insertar_telefono(db: AsyncSession, telefono: TelefonoCreate):
     """)
     try:
         await db.execute(query, {
-            "_cod_persona": telefono.cod_persona,
+            "_cod_persona": cod_persona,  # Ya recuperado de persona
             "_telefono_principal": telefono.telefono_principal,
             "_exten": telefono.exten,
             "_codigo_area": telefono.codigo_area,
@@ -116,6 +116,7 @@ async def insertar_telefono(db: AsyncSession, telefono: TelefonoCreate):
     except Exception as e:
         await db.rollback()
         raise e
+
     
 
 async def actualizar_telefono_crud(db: AsyncSession, cod_telefono: int, telefono: TelefonoUpdate):

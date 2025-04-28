@@ -266,7 +266,7 @@ def obtener_tipo_direccion_por_id(db: Session,cod_tipo_direccion: int) -> TipoDi
         raise HTTPException(status_code=404,detail=f"No se encontró el tipo de dirección con ID {cod_tipo_direccion}")
     return tipo
 
-async def insertar_direccion(db: AsyncSession, direccion: DireccionCreate):
+async def insertar_direccion(db: AsyncSession, direccion: DireccionCreate, cod_persona: int):
     query = text("""
         CALL insertar_direccion(
             :_cod_persona,
@@ -280,18 +280,19 @@ async def insertar_direccion(db: AsyncSession, direccion: DireccionCreate):
     """)
     try:
         await db.execute(query, {
-            "_cod_persona": direccion.cod_persona,
+            "_cod_persona": cod_persona,
             "_cod_ciudad": direccion.cod_ciudad,
             "_cod_tipo_direccion": direccion.cod_tipo_direccion,
             "_direccion1": direccion.direccion1,
             "_direccion2": direccion.direccion2,
             "_direccion3": direccion.direccion3,
-            "_estado_direccion": direccion.estado_direccion
+            "_estado_direccion": direccion.estado_direccion,
         })
         await db.commit()
     except Exception as e:
         await db.rollback()
         raise e
+
 
 async def actualizar_direccion_crud(db: AsyncSession, cod_direccion: int, direccion: DireccionUpdate):
     # Verificar existencia

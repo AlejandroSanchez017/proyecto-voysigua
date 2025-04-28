@@ -1,336 +1,197 @@
-/* Estilos generales */
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  /* Título de Gestión de Empleados */
-  .card-title {
-    font-size: 34px;
-    font-weight: bold;
-    text-align: center;
-    color: #1B5E20;
-    font-family: 'Lora', serif;
-    position: relative;
-    margin-bottom: 15px;
-  }
-  
-  /* Línea decorativa debajo del título */
-  .card-title::after {
-    content: "";
-    display: block;
-    width: 120px;
-    height: 4px;
-    background: #1B5E20;
-    margin: 5px auto;
-    border-radius: 2px;
-  }
-  
-  /* Barra de búsqueda con icono */
-  .filter-input{
-    display: flex;
-    align-items: center;
-    position: relative;
-    background: #f9f9f9;
-    border: 2px solid #1B5E20;
-    border-radius: 25px;
-    padding: 12px 18px;
-    width: 100%;
-    max-width: 350px;
-    transition: all 0.3s ease;
-  }
-  
-  .filter-input:hover {
-    border-color: #145A32;
-  }
-  
-  /* Nueva tabla con diseño mejorado */
-  .table-container {
-    width: 100%;
-    overflow-x: auto;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-  }
-  
-  .table {
-    width: 95%;
-    border-collapse: collapse;
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: #ffffff;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-    margin: auto;
-  }
-  
-  /* Encabezado con verde mejorado */
-  .table th {
-    background: linear-gradient(to right, #1B5E20, #4CAF50);
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 14px;
-    text-align: center;
-    border-bottom: 3px solid #1B5E20;
-  }
-  
-  /* Celdas mejoradas con centrado vertical y contenido expandible */
-  .table td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    font-size: 14px;
-    max-width: 250px;
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
-    vertical-align: middle;
-    word-wrap: break-word;
-  }
-  
-  /* Ajuste específico para Remember Token */
-  .table td.remember-token {
-    max-width: 400px;
-    overflow: visible;
-    word-wrap: break-word;
-    white-space: normal;
-  }
-  .table td input {
-    width: 90%; /* Evita que los inputs sean más grandes que la celda */
-    text-align: center;
+/* Contenedor del título y botones */
+.titulo-contenedor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-  
-  /* Alternancia de colores en las filas */
-  .table tr:nth-child(even) {
-    background-color: #E8F5E9;
+
+/* Estilos para los filtros */
+.filtros-contenedor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.grupo-filtros {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-filtro {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Estilos para tabla */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th, 
+.table td {
+  padding: 10px;
+  text-align: center;
+}
+
+/* Estilo para inputs de edición */
+.input-editar {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+}
+
+.new-empleados-save-btn,
+.new-empleados-cancel-btn,
+.new-empleados-edit-btn,
+.new-empleados-despedir-btn,
+.new-empleados-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100px;       /* ✅ Mismo ancho fijo */
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.new-empleados-save-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.new-empleados-cancel-btn {
+  background-color: #e53935;
+  color: white;
+}
+
+.new-empleados-edit-btn {
+  background-color: #1976d2;
+  color: white;
+}
+
+.new-empleados-delete-btn {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.new-empleados-despedir-btn {
+  background-color: #e59935;
+  color: white;
+}
+
+.new-empleados-save-btn:hover {
+  background-color: #388e3c;
+}
+
+.new-empleados-cancel-btn:hover {
+  background-color: #c62828;
+}
+
+.new-empleados-edit-btn:hover {
+  background-color: #1565c0;
+}
+
+.new-empleados-delete-btn:hover {
+  background-color: #c62828;
+}
+
+.new-empleados-despedir-btn:hover {
+  background-color: #b9833c;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .filtros-contenedor {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  /* Efecto hover más fluido */
-  .table tr:hover {
-    background-color: #A5D6A7;
-    transform: scale(1.01);
-    transition: all 0.2s ease-in-out;
-  }
-  
-  /*Botones*/
-  /* Botones de acción mejorados */
-  .new-empleados-edit-btn{
-    transform-origin: center;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 120px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-  }
-  .new-empleados-cancel-btn{
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 120px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-  }
-  .new-empleados-delete-btn{
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 120px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-  }
-  .new-empleados-save-btn{
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 120px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-  }
-  .btn-btn-warning-btn-sm{
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-transform: uppercase;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    min-width: 120px;  /* Tamaño uniforme */
-    height: 45px; /* Altura fija para todos */
-  }
-  .btn-btn-warning-btn-sm {
-    background-color: #d99241;
-    color: white;
-    border-color: #b0782e;
-  }
-  
-  /* Botón de Editar */
-  .new-empleados-edit-btn {
-    background-color: #4CAF50;
-    color: white;
-    border-color: #388E3C;
-  }
-  
-  .new-empleados-edit-btn:hover {
-    background-color: #388E3C;
-    border-color: #1B5E20;
-    transform: scale(1.05);
-  }
-  
-  /* Botón de Eliminar */
-  .new-empleados-delete-btn {
-    background-color: #D94E41;
-    color: white;
-    border-color: #B03A2E;
-  }
-  
-  .new-empleados-delete-btn:hover {
-    background-color: #D32F2F;
-    border-color: #B71C1C;
-    transform: scale(1.05);
-  }
-  
-  /* Botón de Guardar */
-  .new-empleados-save-btn {
-    background-color: #4CAF50;
-    color: white;
-    border-color: #388E3C;
-  }
-  
-  .new-empleados-save-btn:hover {
-    background-color: #388E3C;
-    border-color: #1B5E20;
-    transform: scale(1.05);
-  }
-  
-  /* Botón de Cancelar */
-  .new-empleados-cancel-btn {
-    background-color: #D94E41;
-    color: white;
-    border-color: #B03A2E;
-  }
-  
-  .new-empleados-cancel-btn:hover {
-    background-color: #D32F2F;
-    border-color: #B71C1C;
-    transform: scale(1.05);
-  }
-  /*  Contenedor para alinear el botón a la derecha */
-  .button-container {
-    display: flex;
-    justify-content: flex-end; /* Alinea el botón a la derecha */
-    padding: 10px 20px;
-  }
-  
-  /* Estilo del botón "Agregar Empleado" */
-  .agregar-empleado-btn {
-    background-color: #007bff; /* Azul */
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 8px; /* Bordes redondeados */
-    font-weight: bold;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Espacio entre icono y texto */
-    transition: all 0.3s ease;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-  }
-  
-  .agregar-empleado-btn:hover {
-    background-color: #0056b3; /* Azul más oscuro */
-    border-color: #003f88;
-    transform: scale(1.05);
-  }
-  
-  /*  Diseño responsivo para botones */
-  @media (max-width: 768px) {
-    .btn {
-      padding: 8px 12px;
-      font-size: 12px;
-    }
-  }
-  
-  
-  /*------------------------------------------------------------------------------------------*/
-  /* Estilos para la fila de nuevo empleado */
-  .new-empleados-row {
-    background-color: #f9f9f9; /* Fondo claro para resaltar */
-  }
-  
-  /* Estilos para cada celda de la fila de nuevo empleado */
-  .new-empleados-cell {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd; /* Borde fino */
-  }
-  
-  /* Estilos para los inputs */
-  .new-empleados-input {
+
+  .input-filtro {
     width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Asegura que ocupe todo el ancho */
   }
-  
-  .new-empleados-checkbox {
-    transform: scale(1.2); /* Escala el checkbox un poco */
-  }
+}
+/* 🔵 Personalización general de Swal */
+.swal2-popup {
+  font-size: 1rem;
+  font-family: 'Arial', sans-serif;
+  border-radius: 12px;
+  padding: 1.2rem;
+  width: 400px; /* 🔥 Menor ancho */
+  max-width: 90%;
+}
+
+/* 🔵 Título */
+.swal2-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* 🔵 Inputs */
+.swal2-input {
+  height: 38px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  margin: 8px 0;
+}
+
+/* 🔵 Botones: confirmación y cancelación */
+.swal2-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* 🔥 Separación uniforme entre botones */
+  margin-top: 20px;
+}
+
+.swal2-confirm {
+  background-color: #3498db !important; /* Azul bonito */
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.swal2-cancel {
+  background-color: #e74c3c !important; /* Rojo bonito */
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.paginacion button {
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.paginacion button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

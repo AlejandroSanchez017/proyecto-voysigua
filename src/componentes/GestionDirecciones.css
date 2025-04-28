@@ -1,0 +1,123 @@
+/* GestionDirecciones.css */
+
+.filtros-contenedor {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
+  .grupo-filtros {
+    display: flex;
+    align-items: center;
+  }
+  
+  .label-mostrar {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .input-filtro {
+    padding: 5px 10px;
+    margin-left: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .input-editar {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .new-direcciones-edit-btn,
+  .new-direcciones-save-btn,
+  .new-direcciones-delete-btn,
+  .new-direcciones-cancel-btn {
+    padding: 8px 15px;
+    margin: 5px 5px 0 0;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .new-direcciones-edit-btn {
+    background-color: #3498db;
+  }
+  
+  .new-direcciones-save-btn {
+    background-color: #28a745;
+  }
+  
+  .new-direcciones-delete-btn {
+    background-color: #e74c3c;
+  }
+  
+  .new-direcciones-cancel-btn {
+    background-color: #6c757d;
+  }
+  
+  .new-empleado-edit-btn:hover,
+  .new-direcciones-save-btn:hover,
+  .new-direcciones-delete-btn:hover,
+  .new-direcciones-cancel-btn:hover {
+    opacity: 0.8;
+  }
+  
+  .table thead th {
+    text-align: center;
+    vertical-align: middle;
+    background: linear-gradient(to right, #006400, #32cd32);
+    color: white;
+    font-weight: bold;
+  }
+  
+  .table tbody td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .card-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .content-wrapper {
+    padding: 20px;
+    background-color: #f0f8f5;
+  }
+  
+  .card-body {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+  
+  .paginacion button {
+    padding: 5px 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .paginacion button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }

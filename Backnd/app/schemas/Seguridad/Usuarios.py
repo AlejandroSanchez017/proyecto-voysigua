@@ -30,6 +30,7 @@ class UsuarioUpdate(BaseModel):
 # Respuesta de Usuario (sin exponer la contraseña)
 class UsuarioResponse(UsuarioBase):
     id: int
+    remember_token: Optional[str] = Field(None, description="Token de autenticación") 
     otp_secret: Optional[str] = Field(None, description="Código secreto OTP del usuario (para 2FA)")
     otp_configurado: bool = Field(..., description="Indica si el OTP ha sido configurado")
 

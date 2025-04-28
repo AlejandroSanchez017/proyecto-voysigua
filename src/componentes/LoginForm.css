@@ -3,18 +3,21 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 94vh;
+    min-height: 100vh; /* Cambié a 100% de la pantalla */
     background: url('/src/Imagenes/imagenlogin.webp') no-repeat center center/cover;
+    padding: 20px; /* Agregamos un padding para dispositivos pequeños */
 }
 
 /* Tarjeta del Login */
 .login-card {
-    width: 350px;
-    background: rgba(255, 255, 255, 0.9);
+    width: 100%;
+    max-width: 380px; /* Limitar el ancho máximo */
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); /* Sombra más elegante */
     text-align: center;
+    padding-bottom: 20px; /* Un pequeño margen inferior */
 }
 
 /* Imagen superior */
@@ -27,88 +30,79 @@
 
 /* Círculo en la imagen */
 .circle-logo {
-    width: 100px;  /* Aumentamos el tamaño */
-    height: 100px; /* Aumentamos el tamaño */
+    width: 100px;
+    height: 100px;
     background: #3ce759;
     color: white;
     border-radius: 50%;
     position: absolute;
-    bottom: -50px;  /* Ajustamos la posición */
+    bottom: -50px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px; /* Aumentamos el tamaño de la fuente */
+    font-size: 22px;
     font-weight: bold;
-    line-height: 100px;  /* Centramos el texto verticalmente */
 }
 
 /* Formulario */
 .login-card form {
-    padding: 40px 30px 30px;
+    padding: 60px 30px 30px; /* Agregado espacio arriba por el círculo */
 }
 
 /* Input Box */
 .input_box {
     position: relative;
     width: 100%;
-    margin: 15px 0;
+    margin: 20px 0;
 }
 
-/* Estilos del input con icono */
+/* Input con íconos */
 .input_box input {
     width: 100%;
-    padding: 12px 40px 12px 40px;  /* Aumentamos el padding izquierdo para el icono */
+    padding: 12px 45px 12px 45px; /* Ícono a la izquierda, espacio razonable */
     border: 2px solid #ccc;
-    border-radius: 5px;
+    border-radius: 7px;
     font-size: 16px;
     outline: none;
     background: #fff;
 }
 
-/* Íconos dentro del input */
+/* Input especial que tiene toggle-password (solo contraseña) */
+.input_box.password-input input {
+    padding: 12px 45px 12px 45px; /* padding izquierdo para ícono */
+    padding-right: 45px; /* padding derecho extra para el botón ojito */
+}
+
+/* Ícono a la izquierda */
 .input_box .icon {
     position: absolute;
-    left: 10px;
+    left: 15px; /* 🔥 Moví un poco para mejor alineación */
     top: 50%;
     transform: translateY(-50%);
-    color: #aaa;
+    color: #888;
     font-size: 18px;
 }
 
 /* Botón para mostrar/ocultar contraseña */
 .toggle-password {
     position: absolute;
-    right: 10px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    color: #aaa;
+    font-size: 18px;
+    color: #888;
 }
 
-/* Cambia el borde cuando el input está en foco */
+/* Input focus */
 .input_box input:focus {
-    border: 2px solid #3ce759;
+    border-color: #3ce759;
 }
 
-.resend-otp-button {
-    margin-top: 10px;
-    background-color: transparent;
-    border: none;
-    color: #007bff;
-    text-decoration: underline;
-    cursor: pointer;
-    font-size: 0.95rem;
-  }
-  
-  .resend-otp-button:hover {
-    color: #0056b3;
-  }
-  
 /* Botón de Iniciar Sesión */
 button[type="submit"] {
     width: 100%;
@@ -116,21 +110,22 @@ button[type="submit"] {
     background: #3ce759;
     border: none;
     color: white;
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 button[type="submit"]:hover {
-    background: #3ce759;
+    background: #32c84a;
 }
 
 /* Enlace de recuperar contraseña */
 .forgot-password {
-    text-align:right;
-    font-size: 20px;  /* Aumentamos el tamaño de la fuente */
-    margin-top: 20px;  /* Aumentamos el margen para separarlo más */
+    text-align: right;
+    margin-top: 15px;
+    font-size: 14px;
 }
 
 .forgot-password a {
@@ -144,16 +139,31 @@ button[type="submit"]:hover {
 
 /* Registro */
 .signup-link {
-    font-size: 16px;  /* Aumentamos el tamaño de la fuente */
-    margin-top: 15px;  /* Aumentamos el margen */
+    font-size: 15px;
+    margin-top: 20px; /* 🔥 Separado mejor del botón */
 }
 
 .signup-link a {
     color: #3ce759;
-    text-decoration: none;
     font-weight: bold;
+    text-decoration: none;
 }
 
 .signup-link a:hover {
     text-decoration: underline;
+}
+
+/* Botón de reenvío OTP */
+.resend-otp-button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.resend-otp-button:hover {
+    color: #0056b3;
 }

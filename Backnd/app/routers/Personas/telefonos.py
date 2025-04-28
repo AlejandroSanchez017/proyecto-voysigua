@@ -83,7 +83,12 @@ async def obtener_tipo_telefono_api(
 @router.post("/telefonos/", response_model=dict)
 async def crear_telefono(telefono: TelefonoCreate, db: AsyncSession = Depends(get_async_db)):
     try:
-        await insertar_telefono(db, telefono)
+        # ⚡ EXTRAER cod_persona del objeto telefono
+        cod_persona = telefono.cod_persona
+        
+        # ⚡ Luego llamar al crud correctamente
+        await insertar_telefono(db, telefono, cod_persona)
+
         return {"message": "Teléfono insertado exitosamente"}
 
     except IntegrityError as e:

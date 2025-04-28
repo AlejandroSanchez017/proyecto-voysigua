@@ -95,7 +95,7 @@ async def obtener_persona_por_id(db: AsyncSession, persona_id: int):
     return persona if persona else None
 
 # Obtener todas las personas
-async def obtener_todas_las_personas(db: AsyncSession, skip: int = 0, limit: int = 10):
+async def obtener_todas_las_personas(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(select(Persona).offset(skip).limit(limit))
     return result.scalars().all()
 

@@ -7,6 +7,7 @@ import {
   FaShoppingCart,
   FaBoxOpen,
 } from "react-icons/fa";
+import { BsTools } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import "./SideNav.css";
 
@@ -67,30 +68,6 @@ function SideNav({ setIsAuthenticated }) {
         {/* Navegación tipo acordeón */}
         <nav className="mt-2">
           <ul className="nav nav-pills nav-sidebar flex-column" role="menu">
-
-            {/* CLIENTES */}
-            <li className="nav-item">
-              <div className="nav-link accordion-header" onClick={() => toggleAccordion("clientes")}>
-                <p className="mb-0">Clientes</p>
-                {openSection === "clientes" ? <IoIosArrowUp /> : <IoIosArrowDown />}
-              </div>
-              {openSection === "clientes" && (
-                <ul className="nav-treeview">
-                  <li className="nav-item">
-                    <Link to="/nuevo-cliente" className="nav-link">
-                      <FaUserPlus className="nav-icon" />
-                      <p>Nuevo Cliente</p>
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/buscar-cliente" className="nav-link">
-                      <FaSearch className="nav-icon" />
-                      <p>Buscar Cliente</p>
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </li>
 
             {/* MANDADOS */}
             <li className="nav-item">
@@ -175,6 +152,7 @@ function SideNav({ setIsAuthenticated }) {
                   {tienePermiso("agregar_usuarios") && (
                     <li className="nav-item">
                       <Link to="/nuevousuario" className="nav-link">
+                      <FaUserPlus className="nav-icon" />
                         <p>Nuevo Usuario</p>
                       </Link>
                     </li>
@@ -182,6 +160,7 @@ function SideNav({ setIsAuthenticated }) {
                   {tienePermiso("consultar_usuarios") && (
                     <li className="nav-item">
                       <Link to="/mycomponent" className="nav-link">
+                      <BsTools className="nav-icon"/>
                         <p>Modulo Usuario</p>
                       </Link>
                     </li>
@@ -198,9 +177,26 @@ function SideNav({ setIsAuthenticated }) {
               </div>
               {openSection === "gestiones" && (
                 <ul className="nav-treeview">
+                  {tienePermiso("agregar_personas") && (
+                    <li className="nav-item">
+                      <Link to="/nuevapersona" className="nav-link">
+                      <FaUserPlus className="nav-icon" />
+                        <p>Nueva Persona</p>
+                      </Link>
+                    </li>
+                  )}
+                  {tienePermiso("agregar_empleados") && (
+                    <li className="nav-item">
+                      <Link to="/nuevoempleado" className="nav-link">
+                      <FaUserPlus className="nav-icon" />
+                        <p>Nuevo Empleado</p>
+                      </Link>
+                    </li>
+                  )}
                   {tienePermiso("consultar_personas") && (
                     <li className="nav-item">
                       <Link to="/gestionpersonas" className="nav-link">
+                      <BsTools className="nav-icon"/>
                         <p>Modulo de Personas</p>
                       </Link>
                     </li>
@@ -208,10 +204,43 @@ function SideNav({ setIsAuthenticated }) {
                   {tienePermiso("consultar_empleados") && (
                     <li className="nav-item">
                       <Link to="/gestionempleados" className="nav-link">
+                      <BsTools className="nav-icon"/>
                         <p>Modulo de Empleados</p>
                       </Link>
                     </li>
                   )}
+                  {tienePermiso("consultar_personas") && (
+                    <li className="nav-item">
+                      <Link to="/gestiontelefonos" className="nav-link">
+                      <BsTools className="nav-icon"/>
+                        <p>Modulo de telefonos</p>
+                      </Link>
+                    </li>
+                  )}
+                  {tienePermiso("consultar_personas") && (
+                    <li className="nav-item">
+                      <Link to="/gestiondirecciones" className="nav-link">
+                      <BsTools className="nav-icon"/>
+                        <p>Modulo de Direcciones</p>
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              )}
+            </li>
+            <li className="nav-item">
+              <div className="nav-link accordion-header" onClick={() => toggleAccordion("auditoria")}>
+                <p className="mb-0">Auditoria</p>
+                {openSection === "auditoria" ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </div>
+              {openSection === "auditoria" && (
+                <ul className="nav-treeview">
+                  <li className="nav-item">
+                    <Link to="/auditoria" className="nav-link">
+                      <BsTools className="nav-icon"/>
+                      <p>Auditoria</p>
+                    </Link>
+                  </li>
                 </ul>
               )}
             </li>

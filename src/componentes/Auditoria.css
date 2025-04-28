@@ -1,0 +1,73 @@
+/* Estilo general */
+.table-auditoria {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background-color: #f8f9fa;
+  }
+  
+  .table-auditoria thead {
+    background: linear-gradient(to right, #006400, #32CD32);
+    color: white;
+  }
+  
+  .table-auditoria th, .table-auditoria td {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    text-align: center;
+  }
+  
+  .table-auditoria tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .table-auditoria tbody tr:hover {
+    background-color: #d4edda;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Filtros */
+  .filtros-contenedor {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px;
+  }
+  
+  .input-filtro {
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .label-mostrar {
+    font-weight: bold;
+  }
+  
+  /* Título */
+  .titulo-contenedor {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+  
+  .paginacion button {
+    padding: 5px 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .paginacion button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  

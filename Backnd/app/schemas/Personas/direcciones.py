@@ -48,12 +48,12 @@ class TipoDireccionResponse(TipoDireccionBase):
         from_atributes = True
 
 class DireccionBase(BaseModel):
-    cod_persona: int = Field(..., description="ID de la persona")
+    
     cod_ciudad: int = Field(..., description="ID de la ciudad")
     cod_tipo_direccion: int = Field(..., description="ID del tipo de dirección")
     direccion1: str = Field(..., max_length=255, description="Primera línea de dirección")
-    direccion2: Optional[str] = Field(None, max_length=255, description="Segunda línea de dirección")
-    direccion3: Optional[str] = Field(None, max_length=255, description="Tercera línea de dirección")
+    direccion2: Optional[str] = Field(None, max_length=255, description="Segunda línea de dirección (opcional)")
+    direccion3: Optional[str] = Field(None, max_length=255, description="Tercera línea de dirección (opcional)")
     estado_direccion: str = Field(..., pattern="^(A|I)$", description="Estado (A=Activo, I=Inactivo)")
 
 class DireccionCreate(DireccionBase):
@@ -68,6 +68,7 @@ class DireccionUpdate(BaseModel):
 
 class DireccionResponse(DireccionBase):
     cod_direccion: int
+    cod_persona: int 
 
     class Config:
         from_attributes = True
