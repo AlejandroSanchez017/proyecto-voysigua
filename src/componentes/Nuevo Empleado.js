@@ -22,7 +22,7 @@ const NuevoEmpleado = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("http://localhost:8000/personas/");
+        const response = await fetch("${process.env.react_app_api_url}/personas/");
         const data = await response.json();
 
         if (Array.isArray(data)) {
@@ -58,7 +58,7 @@ const NuevoEmpleado = () => {
         },
       });
 
-      const response = await fetch("http://localhost:8000/empleados/", {
+      const response = await fetch("${process.env.react_app_api_url}/empleados/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

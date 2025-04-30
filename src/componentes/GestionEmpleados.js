@@ -35,7 +35,7 @@ const GestionEmpleados = () => {
   useEffect(() => {
     const fetchEmpleados = async () => {
       try {
-        const res = await fetch("http://localhost:8000/empleados/");
+        const res = await fetch("${process.env.react_app_api_url}/empleados/");
         const data = await res.json();
         if (Array.isArray(data)) {
           setEmpleados(data);
@@ -58,7 +58,7 @@ const GestionEmpleados = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/empleados/${editingEmpleadosId}`,
+        `${process.env.react_app_api_url}/empleados/${editingEmpleadosId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -68,7 +68,7 @@ const GestionEmpleados = () => {
 
       if (!response.ok) throw new Error("Error al actualizar el Empleado");
 
-      const updated = await fetch("http://localhost:8000/empleados/");
+      const updated = await fetch("${process.env.react_app_api_url}/empleados/");
       const data = await updated.json();
       setEmpleados(data);
       setEditingEmpleadosId(null);
@@ -84,7 +84,7 @@ const GestionEmpleados = () => {
   const deleteEmpleadosFromServer = async (cod_empleado) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/empleados/${cod_empleado}`,
+        `${process.env.react_app_api_url}/empleados/${cod_empleado}`,
         { method: "DELETE" }
       );
       const responseBody = await response.text();
@@ -165,7 +165,7 @@ const GestionEmpleados = () => {
     if (formValues) {
       try {
         const response = await fetch(
-          `http://localhost:8000/empleados/despedir/${empleado.cod_empleado}`,
+          `${process.env.react_app_api_url}/empleados/despedir/${empleado.cod_empleado}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -179,7 +179,7 @@ const GestionEmpleados = () => {
           Swal.fire("Éxito", result.message, "success");
 
           // Recargar empleados después del despido
-          const res = await fetch("http://localhost:8000/empleados/");
+          const res = await fetch("${process.env.react_app_api_url}/empleados/");
           const data = await res.json();
           setEmpleados(data);
         } else {

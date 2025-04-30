@@ -19,7 +19,7 @@ const GestionDirecciones = () => {
 
   const fetchDirecciones = async () => {
     try {
-      const response = await fetch("http://localhost:8000/direcciones/");
+      const response = await fetch("${process.env.react_app_api_url}/direcciones/");
       const data = await response.json();
       if (Array.isArray(data)) {
         setDirecciones(data);
@@ -40,7 +40,7 @@ const GestionDirecciones = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/direccion/${editingDireccionId}`,
+        `${process.env.react_app_api_url}/direccion/${editingDireccionId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -77,7 +77,7 @@ const GestionDirecciones = () => {
     if (confirmacion.isConfirmed) {
       try {
         const response = await fetch(
-          `http://localhost:8000/direcciones/${cod_direccion}`,
+          `${process.env.react_app_api_url}/direcciones/${cod_direccion}`,
           {
             method: "DELETE",
           }

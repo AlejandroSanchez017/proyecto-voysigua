@@ -21,7 +21,7 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/login", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +52,7 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/verify-otp", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +91,7 @@ const LoginForm = ({ onLogin }) => {
 
   const handleResendOtp = async () => {
     try {
-      const response = await fetch("http://localhost:8000/resend-otp", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/resend-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -20,7 +20,7 @@ const GestionTelefonos = () => {
 
   const fetchTelefonos = async () => {
     try {
-      const res = await fetch("http://localhost:8000/telefonos/");
+      const res = await fetch("${process.env.REACT_APP_API_URL}/telefonos/");
       const data = await res.json();
       setTelefonos(data);
     } catch (error) {
@@ -36,7 +36,7 @@ const GestionTelefonos = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/telefonos/${editingTelefonoId}`,
+        `${process.env.react_app_api_url}/telefonos/${editingTelefonoId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ const GestionTelefonos = () => {
     if (confirm.isConfirmed) {
       try {
         const response = await fetch(
-          `http://localhost:8000/telefonos/${cod_telefono}`,
+          `${process.env.react_app_api_url}/telefonos/${cod_telefono}`,
           {
             method: "DELETE",
           }
