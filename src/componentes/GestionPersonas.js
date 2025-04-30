@@ -34,7 +34,7 @@ const GestionPersonas = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/personas");
+        const response = await fetch('${process.env.REACT_APP_API_URL}/personas');
         const data = await response.json();
         setPersonas(data);
       } catch (error) {

@@ -17,16 +17,16 @@ const NuevoEmpleado = () => {
     estado_empleado: "A",
   });
 
-  const [personas, setPersonas] = useState([]); // 1️⃣ inicia vacío como array
+  const [personas, setPersonas] = useState([]); //  inicia vacío como array
 
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/personas/");
+        const response = await fetch('${process.env.REACT_APP_API_URL}/personas/');
         const data = await response.json();
 
         if (Array.isArray(data)) {
-          // 2️⃣ aseguramos que sea un array
+          //  aseguramos que sea un array
           setPersonas(data);
         } else {
           setPersonas([]); // si no es array, lo dejamos vacío para evitar errores
@@ -58,7 +58,7 @@ const NuevoEmpleado = () => {
         },
       });
 
-      const response = await fetch("${process.env.REACT_APP_API_URL}/empleados/", {
+      const response = await fetch('${process.env.REACT_APP_API_URL}/empleados/', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

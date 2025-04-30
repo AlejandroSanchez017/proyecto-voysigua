@@ -33,7 +33,7 @@ const MyComponent = () => {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/usuarios/");
+        const response = await fetch('${process.env.REACT_APP_API_URL}/usuarios/');
         const data = await response.json();
         setUsuarios(data);
       } catch (error) {
@@ -67,7 +67,7 @@ const MyComponent = () => {
       }
 
       const fetchUpdatedUsuarios = async () => {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/usuarios/");
+        const response = await fetch('${process.env.REACT_APP_API_URL}/usuarios/');
         const data = await response.json();
         setUsuarios(data);
       };

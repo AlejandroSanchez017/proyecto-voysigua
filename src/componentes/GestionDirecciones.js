@@ -19,7 +19,7 @@ const GestionDirecciones = () => {
 
   const fetchDirecciones = async () => {
     try {
-      const response = await fetch("${process.env.REACT_APP_API_URL}/direcciones/");
+      const response = await fetch('${process.env.REACT_APP_API_URL}/direcciones/');
       const data = await response.json();
       if (Array.isArray(data)) {
         setDirecciones(data);
