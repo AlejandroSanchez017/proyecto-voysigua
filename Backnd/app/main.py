@@ -32,7 +32,7 @@ print("ORIGEN DEL FRONTEND CORS:", frontend_origin)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://proyecto-voysigua-frontend.onrender.com"],
+    allow_origins=["https://proyecto-voysigua-fronted.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
