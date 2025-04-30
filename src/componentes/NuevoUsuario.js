@@ -105,7 +105,7 @@ const NuevoUsuario = () => {
       });
 
       setTimeout(() => {
-        navigate("/"); // 🚀 Redirige a la página principal después de 2s
+        navigate("/"); 
       }, 2000);
 
       setFormData({
