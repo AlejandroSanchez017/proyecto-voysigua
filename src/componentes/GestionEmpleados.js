@@ -15,7 +15,6 @@ const GestionEmpleados = () => {
   const location = useLocation();
   const [cantidad, setCantidad] = useState(3);
   const [editingEmpleadosId, setEditingEmpleadosId] = useState(null);
-  const [editedEmpleadosData, setEditedEmpleadosData] = useState({});
   const [paginaActual, setPaginaActual] = useState(1);
   const [editedData, setEditedData] = useState({});
 
@@ -62,24 +61,25 @@ const GestionEmpleados = () => {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editedEmpleadosData),
+          body: JSON.stringify(editedData), // ✅ usamos editedData que sí se actualiza
         }
       );
-
+  
       if (!response.ok) throw new Error("Error al actualizar el Empleado");
-
+  
       const updated = await fetch(`${process.env.REACT_APP_API_URL}/empleados/`);
       const data = await updated.json();
       setEmpleados(data);
       setEditingEmpleadosId(null);
-      setEditedEmpleadosData({});
-
+      setEditedData({}); // limpia el estado luego de guardar
+  
       Swal.fire("Actualizado", "Empleado actualizado exitosamente", "success");
     } catch (error) {
       console.error("Error actualizando empleado:", error);
       Swal.fire("Error", "No se pudo actualizar el empleado", "error");
     }
   };
+  
 
   const deleteEmpleadosFromServer = async (cod_empleado) => {
     try {

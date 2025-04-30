@@ -53,37 +53,32 @@ const GestionPersonas = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/${editingPersonasId}`,
+        `${process.env.REACT_APP_API_URL}/personas/${editingPersonasId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(editedPersonasData),
+          body: JSON.stringify(editedPersonasData), // Aquí usas el estado editado correctamente
         }
       );
-
+  
       if (!response.ok) throw new Error("Error al actualizar la persona");
-
-      const fetchUpdatedPersonas = async () => {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/personas`);
-        const data = await response.json();
-        setPersonas(data);
-      };
-      await fetchUpdatedPersonas();
-
+  
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/personas`);
+      const data = await res.json();
+      setPersonas(data);
+  
       setEditingPersonasId(null);
       setEditedPersonasData({});
-      Swal.fire(
-        "¡Actualización exitosa!",
-        "La persona ha sido actualizada.",
-        "success"
-      );
+  
+      Swal.fire("¡Actualización exitosa!", "La persona ha sido actualizada.", "success");
     } catch (error) {
       console.error("Error actualizando la persona:", error);
       Swal.fire("Error", "No se pudo actualizar la persona.", "error");
     }
   };
+  
 
   const deletePersonasFromServer = async (cod_persona) => {
     try {
