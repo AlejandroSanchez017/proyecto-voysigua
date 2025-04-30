@@ -33,7 +33,7 @@ const MyComponent = () => {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await fetch('${process.env.REACT_APP_API_URL}/usuarios/');
+        const response = await fetch("http://localhost:8000/usuarios/");
         const data = await response.json();
         setUsuarios(data);
       } catch (error) {
@@ -52,7 +52,7 @@ const MyComponent = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/usuarios/${editingUserId}`,
+        `http://localhost:8000/usuarios/${editingUserId}`,
         {
           method: "PUT",
           headers: {
@@ -67,7 +67,7 @@ const MyComponent = () => {
       }
 
       const fetchUpdatedUsuarios = async () => {
-        const response = await fetch('${process.env.REACT_APP_API_URL}/usuarios/');
+        const response = await fetch("http://localhost:8000/usuarios/");
         const data = await response.json();
         setUsuarios(data);
       };
@@ -95,7 +95,7 @@ const MyComponent = () => {
 
   const deleteUserFromServer = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/${id}`, {
+      const response = await fetch(`http://localhost:8000/usuarios/${id}`, {
         method: "DELETE",
       });
 
