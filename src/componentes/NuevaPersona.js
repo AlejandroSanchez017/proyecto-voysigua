@@ -50,7 +50,7 @@ const NuevaPersona = () => {
       });
 
       // 1. Insertar Persona
-      const responsePersona = await fetch("${process.env.react_app_api_url}/personas/", {
+      const responsePersona = await fetch("https://proyecto-backend.onrender.com/personas/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,7 +71,7 @@ const NuevaPersona = () => {
       const codPersona = nuevaPersona.cod_persona; // ✔️
 
       // 2. Insertar Teléfono
-      const responseTelefono = await fetch("${process.env.react_app_api_url}/telefonos/", {
+      const responseTelefono = await fetch("https://proyecto-backend.onrender.com/telefonos/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,7 +90,7 @@ const NuevaPersona = () => {
 
       // 3. Insertar Dirección
       const responseDireccion = await fetch(
-        `${process.env.react_app_api_url}/direccion/?cod_persona=${codPersona}`,
+        `https://proyecto-backend.onrender.com/direccion/?cod_persona=${codPersona}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

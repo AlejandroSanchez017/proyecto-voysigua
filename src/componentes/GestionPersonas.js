@@ -34,7 +34,7 @@ const GestionPersonas = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/personas");
+        const response = await fetch("https://proyecto-backend.onrender.com/personas");
         const data = await response.json();
         setPersonas(data);
       } catch (error) {
@@ -53,7 +53,7 @@ const GestionPersonas = () => {
   const handleSaveClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/${editingPersonasId}`,
+        `https://proyecto-backend.onrender.com/${editingPersonasId}`,
         {
           method: "PUT",
           headers: {
@@ -66,7 +66,7 @@ const GestionPersonas = () => {
       if (!response.ok) throw new Error("Error al actualizar la persona");
 
       const fetchUpdatedPersonas = async () => {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/personas");
+        const response = await fetch("https://proyecto-backend.onrender.com/personas");
         const data = await response.json();
         setPersonas(data);
       };
@@ -88,7 +88,7 @@ const GestionPersonas = () => {
   const deletePersonasFromServer = async (cod_persona) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/personas/${cod_persona}`,
+        `https://proyecto-backend.onrender.com/personas/${cod_persona}`,
         {
           method: "DELETE",
         }

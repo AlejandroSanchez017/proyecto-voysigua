@@ -21,7 +21,7 @@ const NuevoUsuario = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("${process.env.react_app_api_url}/personas/");
+        const response = await fetch("https://proyecto-backend.onrender.com/personas/");
         const data = await response.json();
         setPersonas(data);
       } catch (error) {
@@ -75,7 +75,7 @@ const NuevoUsuario = () => {
         },
       });
 
-      const response = await fetch("${process.env.react_app_api_url}/usuarios/", {
+      const response = await fetch("https://proyecto-backend.onrender.com/usuarios/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
