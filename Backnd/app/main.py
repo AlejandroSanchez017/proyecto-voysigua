@@ -27,10 +27,12 @@ async def ping():
 
 # Obtener el origen desde variable de entorno
 frontend_origin = os.getenv("FRONTEND_ORIGIN")
+print("ORIGEN DEL FRONTEND CORS:", frontend_origin)
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin],
+    allow_origins=["https://proyecto-voysigua-frontend.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
