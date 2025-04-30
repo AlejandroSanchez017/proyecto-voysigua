@@ -128,7 +128,7 @@ const NuevoUsuario = () => {
   };
 
   const handleRegresar = () => {
-    navigate("/");
+    navigate("/mycomponent");
   };
 
   return (

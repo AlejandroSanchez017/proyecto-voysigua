@@ -213,7 +213,7 @@ function SideNav({ setIsAuthenticated }) {
                     <li className="nav-item">
                       <Link to="/gestiontelefonos" className="nav-link">
                       <BsTools className="nav-icon"/>
-                        <p>Modulo de telefonos</p>
+                        <p>Modulo de Telefonos</p>
                       </Link>
                     </li>
                   )}

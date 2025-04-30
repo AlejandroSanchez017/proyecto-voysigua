@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import  get_async_db, get_sync_db# ✅ Importamos las funciones correctas
+from app.database import  get_async_db, get_sync_db# Importamos las funciones correctas
 from sqlalchemy.sql import text
 from app.routers.Personas import personas, empleados
 from app.routers.mandados_paquetes import mandados
@@ -11,6 +11,7 @@ from app.routers.Seguridad import (Usuario, roles as roles_router, permisos as p
                                    objeto as objeto_router,  Sesiones as sesiones_router, Auditoria as auditoria_router)
 from app.routers.Seguridad.Autenticacion import router as auth_routes
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 
 
@@ -21,14 +22,17 @@ import uvicorn
 
 app = FastAPI()
 
-# Middleware de CORS
+# Obtener el origen desde variable de entorno
+frontend_origin = os.getenv("FRONTEND_ORIGIN")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[frontend_origin] if frontend_origin else [],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -60,7 +64,7 @@ async def read_root():
 
 # Ruta de prueba de conexión (ASÍNCRONA)
 @app.get("/test-db")
-async def test_db(db: AsyncSession = Depends(get_async_db)):  # ✅ Cambiado a get_async_db
+async def test_db(db: AsyncSession = Depends(get_async_db)):  # Cambiado a get_async_db
     try:
         await db.execute(text("SELECT 1"))
         return {"message": "Conexión exitosa a la base de datos"}

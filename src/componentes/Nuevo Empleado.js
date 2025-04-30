@@ -104,7 +104,7 @@ const NuevoEmpleado = () => {
   };
 
   const handleRegresar = () => {
-    navigate("/");
+    navigate("/gestionempleados");
   };
 
   return (

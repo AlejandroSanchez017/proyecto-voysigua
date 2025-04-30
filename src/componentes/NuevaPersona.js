@@ -132,7 +132,7 @@ const NuevaPersona = () => {
   };
 
   const handleRegresar = () => {
-    navigate("/");
+    navigate("/gestionpersonas");
   };
 
   return (
