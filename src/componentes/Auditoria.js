@@ -13,7 +13,7 @@ const Auditoria = () => {
   useEffect(() => {
     const fetchAuditoria = async () => {
       try {
-        const response = await fetch("${process.env.react_app_api_url}/auditoria/");
+        const response = await fetch("${process.env.REACT_APP_API_URL}/auditoria/");
         const data = await response.json();
         if (Array.isArray(data)) {
           setAuditoria(data);

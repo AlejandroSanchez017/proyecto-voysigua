@@ -22,7 +22,7 @@ const NuevoEmpleado = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("https://proyecto-backend.onrender.com/personas/");
+        const response = await fetch("${process.env.REACT_APP_API_URL}/personas/");
         const data = await response.json();
 
         if (Array.isArray(data)) {
@@ -58,7 +58,7 @@ const NuevoEmpleado = () => {
         },
       });
 
-      const response = await fetch("https://proyecto-backend.onrender.com/empleados/", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/empleados/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -21,7 +21,7 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("https://proyecto-backend.onrender.com/login", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +52,7 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("https://proyecto-backend.onrender.com/verify-otp", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +91,7 @@ const LoginForm = ({ onLogin }) => {
 
   const handleResendOtp = async () => {
     try {
-      const response = await fetch("https://proyecto-backend.onrender.com/resend-otp", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/resend-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
