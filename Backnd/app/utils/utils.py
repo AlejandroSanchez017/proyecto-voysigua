@@ -1,5 +1,16 @@
 import re
 from fastapi import HTTPException
+import aiocron
+import requests
+
+
+@aiocron.crontab('*/5 * * * *')  # Cada 5 minutos
+async def self_ping():
+    try:
+        response = requests.get('https://proyecto-voysigua.onrender.com/ping')
+        print(f"Respuesta de la comprobación de estado: {response.status_code}")
+    except Exception as e:
+        print(f"Error al hacer ping: {e}")
 
 def extraer_campo_foreign_key(error_msg: str) -> str:
     # 🧠 Patrón directo desde DETAIL: La llave (cod_persona)=

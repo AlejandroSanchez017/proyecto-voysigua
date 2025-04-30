@@ -12,15 +12,18 @@ from app.routers.Seguridad import (Usuario, roles as roles_router, permisos as p
 from app.routers.Seguridad.Autenticacion import router as auth_routes
 from fastapi.middleware.cors import CORSMiddleware
 import os
-
-
-
 import sys
 import locale
 import uvicorn
+from app.utils.utils import self_ping
 
 
 app = FastAPI()
+
+@app.get("/ping")
+async def ping():
+    return {"status": "ok"}
+
 
 # Obtener el origen desde variable de entorno
 frontend_origin = os.getenv("FRONTEND_ORIGIN")
