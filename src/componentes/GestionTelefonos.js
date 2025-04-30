@@ -20,7 +20,7 @@ const GestionTelefonos = () => {
 
   const fetchTelefonos = async () => {
     try {
-      const res = await fetch('${process.env.REACT_APP_API_URL}/telefonos/');
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/telefonos/`);
       const data = await res.json();
       setTelefonos(data);
     } catch (error) {

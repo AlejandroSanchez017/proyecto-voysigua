@@ -35,7 +35,7 @@ const GestionEmpleados = () => {
   useEffect(() => {
     const fetchEmpleados = async () => {
       try {
-        const res = await fetch('${process.env.REACT_APP_API_URL}/empleados/');
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/empleados/`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setEmpleados(data);
@@ -68,7 +68,7 @@ const GestionEmpleados = () => {
 
       if (!response.ok) throw new Error("Error al actualizar el Empleado");
 
-      const updated = await fetch("${process.env.REACT_APP_API_URL}/empleados/");
+      const updated = await fetch(`${process.env.REACT_APP_API_URL}/empleados/`);
       const data = await updated.json();
       setEmpleados(data);
       setEditingEmpleadosId(null);
@@ -179,7 +179,7 @@ const GestionEmpleados = () => {
           Swal.fire("Éxito", result.message, "success");
 
           // Recargar empleados después del despido
-          const res = await fetch("${process.env.REACT_APP_API_URL}/empleados/");
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/empleados/`);
           const data = await res.json();
           setEmpleados(data);
         } else {
