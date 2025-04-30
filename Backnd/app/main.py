@@ -30,7 +30,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin] if frontend_origin else [],
+    allow_origins=[frontend_origin],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
