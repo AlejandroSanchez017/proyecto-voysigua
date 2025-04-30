@@ -21,7 +21,7 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/login", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,17 +52,20 @@ const LoginForm = ({ onLogin }) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/verify-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          otp_code: otp,
-          temp_token: tempToken,
-        }),
-      });
+      const response = await fetch(
+        "${process.env.REACT_APP_API_URL}/verify-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: username,
+            otp_code: otp,
+            temp_token: tempToken,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -91,13 +94,16 @@ const LoginForm = ({ onLogin }) => {
 
   const handleResendOtp = async () => {
     try {
-      const response = await fetch("http://localhost:8000/resend-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }), // Se reutiliza el username ya ingresado
-      });
+      const response = await fetch(
+        "${process.env.REACT_APP_API_URL}/resend-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username }), // Se reutiliza el username ya ingresado
+        }
+      );
 
       const data = await response.json();
 
@@ -134,22 +140,22 @@ const LoginForm = ({ onLogin }) => {
               <FaUser className="icon" />
             </div>
             <div className="input_box password-input">
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Contraseña"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    required
-  />
-  <FaLock className="icon" aria-hidden="true" />
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="toggle-password"
-  >
-    {showPassword ? <FaEyeSlash /> : <FaEye />}
-  </button>
-</div>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <FaLock className="icon" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="toggle-password"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
 
             <button type="submit">Ingresar</button>
 
