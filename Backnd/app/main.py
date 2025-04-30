@@ -35,8 +35,15 @@ app.add_middleware(
 
 
 
-sys.stdout.reconfigure(encoding="utf-8")
-locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
+# Manejo seguro de codificación de consola
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+# Manejo seguro de configuración regional
+try:
+    locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, "")
 
 # Registrar rutas
 app.include_router(auth_routes, prefix="/auth")
